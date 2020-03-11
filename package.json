@@ -1,0 +1,30 @@
+{
+  "name": "ethereum-e-shop",
+  "version": "1.33.7",
+  "description": "Blockchain games e-Shop powered by Ethereum",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && sexit 1"
+  },
+  "author": "arminas.glusinskas@mif.stud.vu.lt",
+  "license": "ISC",
+  "devDependencies": {
+    "bootstrap": "4.4.1",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "lite-server": "^2.3.0",
+    "nodemon": "^1.17.3",
+    "truffle": "^5.0.2",
+    "truffle-contract": "^3.0.6",
+    "jquery": "^3.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.mif.vu.lt/argl4534/ethereum-e-shop.git"
+  }
+}
