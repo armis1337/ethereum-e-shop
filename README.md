@@ -4,11 +4,11 @@ swx all
 
 ## todo list
 * iteracija 1
-  * Parduotuves info atvaizdavimas (parduodamu zaidimu skaicius, is viso nupirktu zaidimu sk,...) +-
-  * Zaidimu pridejimas i parduotuve pardavimui (tik administratoriui) +
-  * Visu parduodamu zaidimu sarasas -
-  * Zaidimo info puslapis (foto/video, kurejai, aprasymas, isleidimo metai, parduotu kopiju skaicius, t.t.) -
-  * Zaidimu pirkimas (paprastiems vartotojams) -
+  * Parduotuves info atvaizdavimas (parduodamu zaidimu skaicius, is viso nupirktu zaidimu sk,...) **+-**
+  * Zaidimu pridejimas i parduotuve pardavimui (tik administratoriui) **+**
+  * Visu parduodamu zaidimu sarasas **-**
+  * Zaidimo info puslapis (foto/video, kurejai, aprasymas, isleidimo metai, parduotu kopiju skaicius, t.t.) **-**
+  * Zaidimu pirkimas (paprastiems vartotojams) **-**
 
 ### requirements to run
 ```
