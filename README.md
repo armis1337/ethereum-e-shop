@@ -2,8 +2,8 @@
 
 swx all
 
-requirements to run:
-	npm (apt-get install npm)
-	truffle framework (npm install -g truffle)
-	metamask for browser
+## requirements to run
+a>	npm (apt-get install npm)  
+a>	truffle framework (npm install -g truffle)  
+a>	metamask for browser  
 		
