@@ -85,7 +85,7 @@ var App = {
       var admin = await App.shop.admin()
       $('#adm').html(admin)
       */
-      $('#acc').html(App.account)
+      /*$('#acc').html(App.account)
       var gamecount = await App.shop.gameCount()
       gamecount = gamecount.toNumber()
       $('#gameCount').html(gamecount)
@@ -94,23 +94,63 @@ var App = {
       //console.log(userdata[2].toNumber())
       
       if (userdata[2].toNumber() != 2)
-        $('.admin').remove()
+        await $('.admin').remove()*/
       
+      await App.renderGames()
       App.setLoading(false)
     },
 
-    createGame: async () => {
-      App.setLoading(true)
-      var name = $('#newGame').val()
-      var year = $('#releaseYear').val()
-      var price = $('#price').val()
-      var desc = $('#shortDesc').val()
-      //var state = $('#sale').val()
-      var state = $('#sale').is(":checked")
-      await App.shop.CreateGame(name, desc, price, year, state)
-      //await App.shop.CreateItem(name)
-      window.location.reload()
-    },
+    renderGames: async() => {
+      var gameCount = await App.shop.gameCount()
+      if (gameCount > 0)
+      {
+        $(".gameList").html()
+        $(".gameList").empty()
+        const br = "<br />"
+        const hr = "<hr />"
+        for (var i = 0; i < gameCount; i++)
+        {
+          //var id = "<p>ID: " + i + "</p>"
+          var game = await App.shop.games(i)
+          var name = "<p>Name: " + game[1] +  "</p>"
+          var desc = "<p>Description: " + game[2] + "</p>"
+          var seller = "<p>Seller: " + game[0] + "</p>"
+          var price = "<p>Price: " + game[3] + "</p>"
+          var releaseYear = "<p>Year released: " + game[4] + "</p>"
+          var soldCopies = "<p>Total sold copies: " + game[5] + "</p>"
+          console.log(game[6])
+          if (game[6] == true)
+            var state = "<p>For sale</p>"
+          else
+            var state = "<p>Not for sale</p>"
+          /*console.log(game)
+          console.log(name)
+          console.log(seller)
+          console.log(price)
+          console.log(releaseYear)
+          console.log(soldCopies)
+          console.log("kakaska")*/
+          $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state)
+        }
+      }
+
+        /*if (item[3] == 0)
+        {
+          status = '<p>Status: For sale</p>'
+        }
+        else
+        {
+          status = '</p>Status: Not for sale</p>'
+        }
+        if (App.account == ownerAddress)
+        {
+          $(".gameList").append(hr, id, name, owner, price, status, "you are owner of this item")
+        }
+        else {
+          $(".gameList").append(hr, id, name, owner, price, status)
+        }*/
+        
+      },
   
     setLoading: (boolean) => {
       App.loading = boolean

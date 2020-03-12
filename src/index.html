@@ -11,18 +11,8 @@
         </style>
 </head>
 <body>
-    <!--
-        <div id="content">
-        <p>my account is: <span id="acc"></span></p>
-        <p>admin account is: <span id="adm"></span></p>
-        <a href="admin.html" class="admin">Admin page</a><br>
-        <a href="items.html">List of all items</a><br>
-        <a href="myitems.html">My items</a><br>
-        <a href="sale.html">Items for sale</a><br>
-        <button type="button" onClick="App.donate()">Donate 5eth to the admin</button>
-        </div>
-    -->
 	<div id="content">
+        <a href="games.html">list of games to buy</a><br>
         <h1><center>E-Shop</center></h1>
         <p>Total number of games in the shop: <span id="gameCount"></span></p>
         <p>My account is: <span id="acc"></span><span class="admin" style="color:red;"> - Admin</span></p>
@@ -43,7 +33,7 @@
                 <br>
                 <textarea id="shortDesc" rows="4" cols="50" maxlength="100" placeholder="Short description"></textarea>
                 <br>
-                <input type="checkbox" id="sale">
+                <input type="checkbox" id="sale" checked="true">
                 <label for="sale">Set game for sale</label>
                 <br>
 				<input type="submit" value="Create">
@@ -55,10 +45,8 @@
                 <p><center>Loading...</center></p>
         </div>
 </body>
-    <!--<script src="extra/jquery/dist/jquery.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="extra/web3/dist/web3.min.js"></script>
-    <!--<script src="extra/bignumber.js/bignumber.min.js"></script>-->
     <script src="extra/truffle-contract/dist/truffle-contract.js"></script>
     <script src="index.js"></script>
 
