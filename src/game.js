@@ -75,33 +75,37 @@ var App = {
       if (App.loading) {
         return
       }
-  
       //update the app loading state
       App.setLoading(true)
       
-      /*
-      //render account
-      $('#acc').html(App.account)
-      var admin = await App.shop.admin()
-      $('#adm').html(admin)
-      */
-      /*$('#acc').html(App.account)
-      var gamecount = await App.shop.gameCount()
-      gamecount = gamecount.toNumber()
-      $('#gameCount').html(gamecount)
-      
-      var userdata = await App.shop.Users(App.account.toString())
-      //console.log(userdata[2].toNumber())
-      
-      if (userdata[2].toNumber() != 2)
-        await $('.admin').remove()*/
-      
-      await App.renderGames()
+      await App.renderGame()
       App.setLoading(false)
     },
 
-    renderGames: async() => {
-      var gameCount = await App.shop.gameCount()
+    renderGame: async() => {
+      //var query_id = window.location.href
+      var id = location.search.substring(4)
+      //console.log(id)
+
+      var game = await App.shop.games(id)
+      console.log(game[1])
+      $(".gameInfo #name").html(game[1]);
+      $(".gameInfo #desc").html(game[2]);
+      $(".gameInfo #year").html(game[4].toNumber());
+      $(".gameInfo #price").html(game[3].toNumber());
+      $(".gameInfo #seller").html(game[0]);
+      $(".gameInfo #soldCount").html(game[5].toNumber())
+      if (game[6] == true)
+        var state = "For sale";
+      else
+        var state = "Not for sale";
+      $(".gameInfo #state").html(state);
+
+      if (game[0] == App.account)
+        $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>");
+      
+ 
+      /*var gameCount = await App.shop.gameCount()
       if (gameCount > 0)
       {
         $(".gameList").html()
@@ -118,7 +122,7 @@ var App = {
           var price = "<p>Price: " + game[3] + "</p>"
           var releaseYear = "<p>Year released: " + game[4] + "</p>"
           var soldCopies = "<p>Total sold copies: " + game[5] + "</p>"
-          var url = "<a href=" + window.location.origin + "/game.html?id=" + i + ">Game's page</a>"
+          var url = "<a href=" + window.location.origin + "/game.html?" + i + ">Game's page</a>"
           console.log(url)
           if (game[6] == true)
             var state = "<p>For sale</p>"
@@ -127,25 +131,9 @@ var App = {
 
           $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state, url)
         }
-      }
-
-        /*if (item[3] == 0)
-        {
-          status = '<p>Status: For sale</p>'
-        }
-        else
-        {
-          status = '</p>Status: Not for sale</p>'
-        }
-        if (App.account == ownerAddress)
-        {
-          $(".gameList").append(hr, id, name, owner, price, status, "you are owner of this item")
-        }
-        else {
-          $(".gameList").append(hr, id, name, owner, price, status)
-        }*/
+      }*/
         
-      },
+    },
   
     setLoading: (boolean) => {
       App.loading = boolean

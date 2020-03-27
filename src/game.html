@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Game</title>
+
+        <style>
+            #content {
+                    display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="content">
+            <a href="index.html">Home</a>
+            <a href="games.html">Game list</a>
+            <div class="gameInfo">
+                <center><h1 id="name"> - </h1></center>
+                <center><blockquote id="desc">-</blockquote></center>
+                <p>Year released: <span id="year">yeear</span></p>
+                <p>Price: <span id="price">-</span></p>
+                <p>Seller: <span id="seller">-</span></p>
+                <p>Sold copies: <span id="soldCount">-</span></p>
+                <p>State: <span id="state">-</span></p>
+            </div>
+        </div>
+        <div id="loader">
+            <p><center>Loading...</center></p>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="vendor/web3/dist/web3.min.js"></script>
+    <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
+    <script src="game.js"></script>
+</html>

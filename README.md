@@ -7,7 +7,7 @@ swx all
   * [x] Parduotuves info atvaizdavimas (parduodamu zaidimu skaicius, is viso nupirktu zaidimu sk,...)
   * [x] Zaidimu pridejimas i parduotuve pardavimui (tik administratoriui)
   * [x] Visu parduodamu zaidimu sarasas
-  * [ ] Zaidimo info puslapis (foto/video, kurejai, aprasymas, isleidimo metai, parduotu kopiju skaicius, t.t.)
+  * [x] Zaidimo info puslapis (foto/video, kurejai, aprasymas, isleidimo metai, parduotu kopiju skaicius, t.t.)
   * [ ] Zaidimu pirkimas (paprastiems vartotojams)
 
 ### requirements to run

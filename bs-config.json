@@ -5,7 +5,7 @@
       "./build/contracts"
     ],
     "routes": {
-      "/extra": "./node_modules"
+      "/vendor": "./node_modules"
     }
   }
 }
