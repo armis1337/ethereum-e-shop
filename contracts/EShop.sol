@@ -6,6 +6,8 @@ contract EShop {
     uint256 public totalSoldCopies; // parduotu kopiju skaicius
 
     struct Game {
+        bool initialized;
+        uint256 id;
         address payable seller;
         string name;
         string short_desc;
@@ -18,9 +20,11 @@ contract EShop {
     Game[] public games; // parduodami zaidimai
 
     struct User {
-        address _address;
+        address addr;
         string name;
         Groups group;
+        uint256 ownedGames;
+        mapping (uint256 => Game) myGames;
     }
 
     enum Groups { Normal, Seller, Admin }
@@ -28,7 +32,8 @@ contract EShop {
     mapping (address => User) public Users;
 
     constructor() public {
-        Users[msg.sender] = User(msg.sender, "Armis1337", Groups.Admin);
+        CreateUser(msg.sender, Groups.Admin);
+        ChangeName(msg.sender, "Armis1337");
     }
 
     modifier onlyAdmin() {
@@ -36,21 +41,69 @@ contract EShop {
         _;
     }
 
-    function CreateGame(string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
+    modifier onlyNormal() {
+        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
+        _;
+    }
+
+    modifier notSeller() {
+        require(Users[msg.sender].group != Groups.Seller, "Sellers cant buy games!");
+        _;
+    }
+
+    function CreateUser (address payable _addr, Groups _gr)
+        internal
+    {
+        User storage tmp = Users[_addr];
+        tmp.addr = _addr;
+        tmp.group = _gr;
+    }
+
+    function ChangeName (address _addr, string memory _name)
+        internal
+    {
+        Users[_addr].name = _name;
+    }
+
+    function CreateGame (string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
         onlyAdmin
     {
         games.push(Game(
             {
+                id: gameCount,
                 seller: msg.sender,
                 name: _name,
                 short_desc: _sh_desc,
                 price: _price,
                 releaseYear: _year,
                 soldCopies: 0,
-                state: _state
+                state: _state,
+                initialized: true
             }));
         gameCount ++;
+    }
+
+    function BuyGame (uint256 _id)
+        public
+        payable
+        notSeller
+    {
+        require(games[_id].state == true, "this game is not for sale");
+        require(msg.value >= games[_id].price, "not enough ether");
+        require(Users[msg.sender].myGames[_id].initialized == false, "you own this game");
+        require(msg.sender != games[_id].seller, "You cant buy your own game");
+        games[_id].seller.transfer(games[_id].price);
+        //msg.sender.transfer(address(this).balance); //duodam pirkejui grazos, jei per daug pervede
+        Users[msg.sender].myGames[_id] = games[_id];
+        Users[msg.sender].ownedGames ++;
+        games[_id].soldCopies ++;
+        totalSoldCopies ++;
+    }
+
+    function UserHasGame (address _addr, uint256 _id) public view returns (bool)
+    {
+        return Users[_addr].myGames[_id].initialized;
     }
 
 }

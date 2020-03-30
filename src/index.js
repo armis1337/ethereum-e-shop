@@ -86,13 +86,17 @@ var App = {
       $('#adm').html(admin)
       */
       $('#acc').html(App.account)
+
       var gamecount = await App.shop.gameCount()
       gamecount = gamecount.toNumber()
       $('#gameCount').html(gamecount)
+
       
       var userdata = await App.shop.Users(App.account.toString())
       //console.log(userdata[2].toNumber())
-      
+      var myGames = userdata[3].toNumber()
+      $('#myGames').html(myGames)
+
       if (userdata[2].toNumber() != 2)
         $('.admin').remove()
       
