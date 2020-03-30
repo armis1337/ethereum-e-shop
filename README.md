@@ -9,19 +9,19 @@ swx all
   * [x] Visu parduodamu zaidimu sarasas
   * [x] Zaidimo info puslapis (foto/video, kurejai, aprasymas, isleidimo metai, parduotu kopiju skaicius, t.t.)
   * [x] Zaidimu pirkimas (paprastiems vartotojams)
-  
+\  
 * iteracija 2
   * [ ] Admin sasaja - Esamu zaidimu redagavimas
   * [ ] Vartotoju grupes Sellers sukurimas
   * [ ] Admin sasaja - Vartotoju priskyrimas "sellers" grupei
   * [ ] Zaidimu pridejimas bei ju redagavimas "sellers" grupes nariams
-  
+\  
 * iteracija 3
   * [ ] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 
   * [ ] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
   * [ ] Pardaveju profilio puslapis - Aprasymo redagavimas, nuotraukos keitimas (?)
   * [ ] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
-  
+\  
 * iteracija 4
   * [ ] Zaidimo info puslapis paprastiems vartotojams - Galimybe vertinti zaidima (x/10), palikti atsiliepima
   * [ ] Zaidimo info puslapis paprastiems vartotojams - Galimybe pranesti apie klaida (report a bug)
