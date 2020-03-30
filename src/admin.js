@@ -85,6 +85,7 @@ var App = {
       var admin = await App.shop.admin()
       $('#adm').html(admin)
       */
+     /*
       $('#acc').html(App.account)
 
       var gamecount = await App.shop.gameCount()
@@ -99,7 +100,7 @@ var App = {
 
       if (userdata[1].toNumber() != 2)
         $('.admin').remove()
-      
+      */
       App.setLoading(false)
     },
 

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Admin page</title>
+	<style>
+		#content {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id = "content">
+		<a href = "index.html">Home</a>
+		<br>
+		<br>
+		<center>
+			<h4>Create new item</h4>
+			<form onSubmit="App.createItem(); 
+											window.alert('Confirm the transaction to create new item'); 
+											return false">
+				Name: 
+				<input id="newItem" type="text" placeholder="item123" required>
+				<br>
+				<br>
+				<input type="submit" value="Create">
+			</form>
+		</center>
+	</div>
+	<div id = "loader">
+		<center>Loading...</center>
+	</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="vendor/web3/dist/web3.min.js"></script>
+  <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
+  <script src="admin.js"></script>
+</html>

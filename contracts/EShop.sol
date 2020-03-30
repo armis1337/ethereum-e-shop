@@ -20,7 +20,7 @@ contract EShop {
     Game[] public games; // parduodami zaidimai
 
     struct User {
-        address addr;
+        //address addr;
         string name;
         Groups group;
         uint256 ownedGames;
@@ -32,8 +32,8 @@ contract EShop {
     mapping (address => User) public Users;
 
     constructor() public {
-        CreateUser(msg.sender, Groups.Admin);
-        ChangeName(msg.sender, "Armis1337");
+        Users[msg.sender].name = "Armis1337";
+        Users[msg.sender].group = Groups.Admin;
     }
 
     modifier onlyAdmin() {
@@ -46,28 +46,19 @@ contract EShop {
         _;
     }
 
+    modifier onlySeller() { // or admin XD
+        require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin, "you cant do this");
+        _;
+    }
+
     modifier notSeller() {
         require(Users[msg.sender].group != Groups.Seller, "Sellers cant buy games!");
         _;
     }
 
-    function CreateUser (address payable _addr, Groups _gr)
-        internal
-    {
-        User storage tmp = Users[_addr];
-        tmp.addr = _addr;
-        tmp.group = _gr;
-    }
-
-    function ChangeName (address _addr, string memory _name)
-        internal
-    {
-        Users[_addr].name = _name;
-    }
-
     function CreateGame (string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
-        onlyAdmin
+        onlySeller
     {
         games.push(Game(
             {
@@ -104,6 +95,28 @@ contract EShop {
     function UserHasGame (address _addr, uint256 _id) public view returns (bool)
     {
         return Users[_addr].myGames[_id].initialized;
+    }
+
+    function ChangeGroup (address _addr, Groups _gr) // pakeisti userio grupe, tik adminui
+        public
+        onlyAdmin
+    {
+        //require(Users[_addr].group != _gr, "user is already in this group");
+        Users[_addr].group = _gr;
+    }
+
+    function ChangeName (string memory _new) // pasikeisti savo varda
+        public
+    {
+        //require reiktu pridet, kad belekokio sudo neprivestu, bet kol kas bus ok
+        Users[msg.sender].name = _new;
+    }
+
+    function ChangeName (string memory _new, address _addr) // pakeisti bet kokio userio varda, bet tik adminui
+        public
+        onlyAdmin
+    {
+        Users[_addr].name = _new;
     }
 
 }
