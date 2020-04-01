@@ -79,12 +79,27 @@ var App = {
       //update the app loading state
       App.setLoading(true)
       
+      //check if admin
+      var userdata = await App.shop.Users(App.account.toString())
+      if (userdata[1] != 2)
+      {
+        $('#content').html('<center><h2 style="color:red">you are not an admin,<br> get out</h2></center>')
+        $('#content').append('<br><center><a href="index.html">Home</a></center>')
+        App.setLoading(false)
+        return
+      }
+
+
       //add games to dropdown list
       var gameCount = await App.shop.gameCount()
-      for (var i=0; i<gameCount; i++)
+      var gamesLen = await App.shop.GetGamesLength()
+      gamesLen = gamesLen.toNumber()
+      //console.log(gamesLen)
+      for (var i=0; i<gamesLen; i++)
       {
         var game = await App.shop.games(i)
-        //console.log(game[3])
+        if(!game[0])
+          continue
         $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
       }
       //$('#editGame').on('submit', {/*id: $("select#gameList").val()*/}, App.renderGame)
@@ -120,11 +135,20 @@ var App = {
       form.append('<label for="sale">Set game on sale </label>')
       form.append('<br>')
       form.append('<button type="submit">Done</button>')
-      form.append('    <button onClick="App.cancelEdit(); return false;" type="button">Cancel</button>')
+      form.append('    <button onClick="App.deleteGame('+ id +')" type="button" style="color:red">DELETE GAME</button>')
+      form.append('<br>')
+      form.append('<button onClick="App.cancelEdit(); return false;" type="button">Cancel</button>')
     },
 
     cancelEdit: () => {
       $('#editGame').remove()
+    },
+
+    deleteGame: async(id) => {
+      App.setLoading(true)
+      window.alert("confirm the transaction if you really want to delete this game")
+      await App.shop.DeleteGame(id)
+      window.location.reload()
     },
 
     updateGame: async(id) => {

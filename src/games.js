@@ -102,25 +102,30 @@ var App = {
 
     renderGames: async() => {
       var gameCount = await App.shop.gameCount()
+      var gamesLen = await App.shop.GetGamesLength()
+      gamesLen = gamesLen.toNumber()
       if (gameCount > 0)
       {
         $(".gameList").html()
         $(".gameList").empty()
         const br = "<br />"
         const hr = "<hr />"
-        for (var i = 0; i < gameCount; i++)
+        for (var i = 0; i < gamesLen; i++)
         {
           //var id = "<p>ID: " + i + "</p>"
           var game = await App.shop.games(i)
-          var name = "<p>Name: " + game[1] +  "</p>"
-          var desc = "<p>Description: " + game[2] + "</p>"
-          var seller = "<p>Seller: " + game[0] + "</p>"
-          var price = "<p>Price: " + game[3] + "</p>"
-          var releaseYear = "<p>Year released: " + game[4] + "</p>"
-          var soldCopies = "<p>Total sold copies: " + game[5] + "</p>"
+          if (!game[0])
+            continue
+          
+          var name = "<p>Name: " + game[3] +  "</p>"
+          var desc = "<p>Description: " + game[4] + "</p>"
+          var seller = "<p>Seller: " + game[2] + "</p>"
+          var price = "<p>Price: " + game[5] + "</p>"
+          var releaseYear = "<p>Year released: " + game[6] + "</p>"
+          var soldCopies = "<p>Total sold copies: " + game[7] + "</p>"
           var url = "<a href=" + window.location.origin + "/game.html?id=" + i + ">Game's page</a>"
-          console.log(url)
-          if (game[6] == true)
+          //console.log(url)
+          if (game[8] == true)
             var state = "<p>For sale</p>"
           else
             var state = "<p>Not for sale</p>"

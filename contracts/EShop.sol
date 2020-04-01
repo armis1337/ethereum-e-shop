@@ -86,6 +86,14 @@ contract EShop {
         games[_id].state = _state;
     }
 
+    function DeleteGame (uint256 _id)
+        public
+        onlyAdmin
+    {
+        delete games[_id];
+        gameCount--;
+    }
+
     function BuyGame (uint256 _id)
         public
         payable
@@ -101,6 +109,14 @@ contract EShop {
         Users[msg.sender].ownedGames ++;
         games[_id].soldCopies ++;
         totalSoldCopies ++;
+    }
+
+    function GetGamesLength()
+        public
+        view
+        returns (uint256)
+    {
+        return games.length;
     }
 
     function UserHasGame (address _addr, uint256 _id) public view returns (bool)

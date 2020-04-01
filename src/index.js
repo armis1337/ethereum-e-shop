@@ -88,6 +88,7 @@ var App = {
       $('#acc').html(App.account)
 
       var gamecount = await App.shop.gameCount()
+      //var gamecount = await App.shop.GetGamesLength()
       gamecount = gamecount.toNumber()
       $('#gameCount').html(gamecount)
 
