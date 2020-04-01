@@ -11,8 +11,8 @@ swx all
   * [x] Zaidimu pirkimas (paprastiems vartotojams)
 \  
 * iteracija 2
-  * [ ] Admin sasaja - Esamu zaidimu redagavimas
-  * [ ] Vartotoju grupes Sellers sukurimas
+  * [x] Admin sasaja - Esamu zaidimu redagavimas
+  * [x] Vartotoju grupes Sellers sukurimas
   * [ ] Admin sasaja - Vartotoju priskyrimas "sellers" grupei
   * [ ] Zaidimu pridejimas bei ju redagavimas "sellers" grupes nariams
 \  
