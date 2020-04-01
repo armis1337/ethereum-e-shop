@@ -79,29 +79,66 @@ var App = {
       //update the app loading state
       App.setLoading(true)
       
-      /*
-      //render account
-      $('#acc').html(App.account)
-      var admin = await App.shop.admin()
-      $('#adm').html(admin)
-      */
-     /*
-      $('#acc').html(App.account)
-
-      var gamecount = await App.shop.gameCount()
-      gamecount = gamecount.toNumber()
-      $('#gameCount').html(gamecount)
-
+      //add games to dropdown list
+      var gameCount = await App.shop.gameCount()
+      for (var i=0; i<gameCount; i++)
+      {
+        var game = await App.shop.games(i)
+        //console.log(game[3])
+        $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
+      }
+      //$('#editGame').on('submit', {/*id: $("select#gameList").val()*/}, App.renderGame)
       
-      var userdata = await App.shop.Users(App.account.toString())
-      //console.log(userdata[2].toNumber())
-      var myGames = userdata[2].toNumber()
-      $('#myGames').html(myGames)
-
-      if (userdata[1].toNumber() != 2)
-        $('.admin').remove()
-      */
       App.setLoading(false)
+    },
+
+    renderGame: async() => {
+      var id = $('#gameList').val()
+      var game = await App.shop.games(id)
+
+      App.cancelEdit()
+
+      $('#content').append('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
+      var form = $('#updateGame')
+      form.append('<hr>')
+      form.append('<label for="name">Game\'s name: </label>')
+      form.append('<input id="name" type="text" value="' + game[3]  + '" required>')
+      form.append('<br>')
+      form.append('<label for="year">Year: </label>')
+      form.append('<input id="year" type="number" value="' + game[6] + '" required>')
+      form.append('<br>')
+      form.append('<label for="price">Price (wei): </label>')
+      form.append('<input id="price" type="number" step="0.0000001" value="' + game[5] + '" required>')
+      form.append('<br>')
+      form.append('<textarea id="shortDesc" rows="4" cols="50" maxlength="280">' + game[4] + '</textarea>')
+      form.append('<br>')
+      if (game[8])
+        form.append('<input type="checkbox" id="sale" checked="true">')
+      else 
+        form.append('<input type="checkbox" id="sale">')
+      //console.log(game[8])
+      form.append('<label for="sale">Set game on sale </label>')
+      form.append('<br>')
+      form.append('<button type="submit">Done</button>')
+      form.append('    <button onClick="App.cancelEdit(); return false;" type="button">Cancel</button>')
+    },
+
+    cancelEdit: () => {
+      $('#editGame').remove()
+    },
+
+    updateGame: async(id) => {
+      App.setLoading(true)
+      var name = $('#name').val()
+      var year = $('#year').val()
+      var price = $('#price').val()
+      var desc = $('#shortDesc').val()
+      var state = $('#sale').is(":checked")
+      //console.log(name, year, price, desc, state)
+      //await App.setLoading(true)
+      window.alert("confirm the transaction to submit game's changes")
+      await App.shop.UpdateGame(id, name, desc, price, year, state);
+      window.location.reload()
     },
 
     createGame: async () => {

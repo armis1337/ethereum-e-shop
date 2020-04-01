@@ -11,20 +11,13 @@
 <body>
 	<div id = "content">
 		<a href = "index.html">Home</a>
-		<br>
-		<br>
-		<center>
-			<h4>Create new item</h4>
-			<form onSubmit="App.createItem(); 
-											window.alert('Confirm the transaction to create new item'); 
-											return false">
-				Name: 
-				<input id="newItem" type="text" placeholder="item123" required>
-				<br>
-				<br>
-				<input type="submit" value="Create">
-			</form>
-		</center>
+		<h2><center>Admin panel</center></h2>
+		<form onSubmit="App.renderGame();
+										return false;">
+			<label for="gameList">Chose a game to edit: </label>
+			<select id="gameList"></select>
+			<button type="submit">OK</button>
+		</form>
 	</div>
 	<div id = "loader">
 		<center>Loading...</center>

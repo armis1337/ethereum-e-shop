@@ -113,6 +113,7 @@ var App = {
       var state = $('#sale').is(":checked")
       await App.shop.CreateGame(name, desc, price, year, state)
       //await App.shop.CreateItem(name)
+      App.setLoading(false)
       window.location.reload()
     },
   

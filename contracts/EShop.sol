@@ -75,6 +75,17 @@ contract EShop {
         gameCount ++;
     }
 
+    function UpdateGame (uint256 _id, string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
+        public
+        onlyAdmin
+    {
+        games[_id].name = _name;
+        games[_id].short_desc = _sh_desc;
+        games[_id].price = _price;
+        games[_id].releaseYear = _year;
+        games[_id].state = _state;
+    }
+
     function BuyGame (uint256 _id)
         public
         payable

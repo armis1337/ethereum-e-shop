@@ -117,6 +117,7 @@ var App = {
       App.setLoading(true)
       e.preventDefault()
       await App.shop.BuyGame(e.data.id, {from: App.account, value: e.data.price})
+      App.setLoading(false)
       window.location.reload()
     },
   
