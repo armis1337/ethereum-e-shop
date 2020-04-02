@@ -79,7 +79,7 @@ App = {
   
       //update the app loading state
       App.setLoading(true)
-      
+
       /*
       //render account
       $('#acc').html(App.account)

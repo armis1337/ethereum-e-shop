@@ -12,7 +12,7 @@
 	<div id = "content">
 		<a href = "index.html">Home</a>
 		<h2><center>Admin panel</center></h2>
-		<form onSubmit="App.renderGame();
+		<form class="games" onSubmit="App.renderGame();
 										return false;">
 			<label for="gameList">Choose a game to edit: </label>
 			<select id="gameList" disabled="true">
@@ -20,6 +20,7 @@
 			</select>
 			<button type="submit" disabled="true">OK</button>
 		</form>
+		<div id = "groups"></div>
 	</div>
 	<div id = "loader">
 		<center>Loading...</center>

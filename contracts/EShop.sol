@@ -20,7 +20,6 @@ contract EShop {
     Game[] public games; // parduodami zaidimai
 
     struct User {
-        //address addr;
         string name;
         Groups group;
         uint256 ownedGames;
@@ -123,6 +122,22 @@ contract EShop {
         returns (uint256)
     {
         return games.length;
+    }
+
+    function GetSellersLength()
+        public
+        view
+        returns (uint256)
+    {
+        return Sellers.length;
+    }
+
+    function GetAdminsLength()
+        public
+        view
+        returns (uint256)
+    {
+        return Admins.length;
     }
 
     function UserHasGame (address _addr, uint256 _id) public view returns (bool)

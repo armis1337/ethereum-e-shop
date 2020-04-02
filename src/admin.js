@@ -1,13 +1,14 @@
 var App = {                                                                                                                                                               
-    loading: false,                                                                                                                                                     
+    loading: false,       // bv false                                                                                                                                               
     contracts: {},                                                                                                                                                      
                                                                                                                                                                         
-    load: async () => {                                                                                                                                                 
-      //await App.setLoading(true)                                                                                                                                      
+    load: async () => {       
+      //App.setLoading(true)                                                                                                                                                                                                                                                                              
       await App.loadWeb3()                                                                                                                                              
       await App.loadAccount()                                                                                                                                           
-      await App.loadContract()                                                                                                                                          
-      await App.render()                                                                                                                                                
+      await App.loadContract()  
+      //App.setLoading(false)                                                                                                                                           
+      await App.render()                                                                                                                                             
     },                                                                                                                                                                  
                                                                                                                                                                         
     loadWeb3: async () => {                                                                                                                                             
@@ -89,7 +90,6 @@ var App = {
         return
       }
 
-
       //add games to dropdown list
       var gameCount = await App.shop.gameCount()
       var gamesLen = await App.shop.GetGamesLength()
@@ -101,7 +101,7 @@ var App = {
       {
         $('#gameList').empty()
         $('#gameList').attr('disabled', false)
-        $(':submit').attr('disabled', false)
+        $('.games :submit').attr('disabled', false)
         for (var i=0; i<gamesLen; i++)
         {
           var game = await App.shop.games(i)
@@ -115,15 +115,50 @@ var App = {
       else
       {
         $('#gameList').attr('disabled', true)
-        $(':submit').attr('disabled', true)
+        $('.games :submit').attr('disabled', true)
       }
-      //console.log(gamesLen)
-      
-      //$('#editGame').on('submit', {/*id: $("select#gameList").val()*/}, App.renderGame)
+
+      await App.renderGroups()
       
       App.setLoading(false)
     },
 
+    renderGroups: async() => {
+      $('#groups').append('<hr>')
+      $('#groups').append('<form id="seller">')
+      var form = $('#groups #seller')
+      form.append('<p>Add user to "Sellers" group</p>')
+      form.append('<label for="address">Users address: </label>')
+      form.append('<input id="address" type="text" placeholder="0x000..." required>')
+      form.append('<input type="submit" value="Add"></input>')
+      form.on('submit', {}, App.makeSeller)
+
+      $('#groups').append('<div id="sellersList"></div>')
+      var list = $('#sellersList')
+      list.append('<h4>list of all sellers:</h4')
+      var sLen = await App.shop.GetSellersLength();
+      sLen = sLen.toNumber()
+      for (var i = 0; i < sLen; i++)
+      {
+        //console.log('i = ' + i)
+        var addr = await App.shop.Sellers(i)
+        list.append("<p>id: " + i + ", address: " + addr)
+      }
+    },
+
+    makeSeller: async(e) => {
+      e.preventDefault()
+      var addr = $('#address').val()
+      //
+      //reik tikrinimo ar nera jau selleris arba adminas
+      //
+      App.setLoading(true)
+      window.alert('confirm the transaction to make user\n' + addr + '\n\na Seller')
+      await App.shop.MakeSeller(addr)
+      App.setLoading(false)
+      window.location.reload()
+    },
+    
     renderGame: async() => {
       var id = $('#gameList').val()
       var game = await App.shop.games(id)
