@@ -1,4 +1,4 @@
-var App = {                                                                                                                                                               
+App = {                                                                                                                                                               
     loading: false,                                                                                                                                                     
     contracts: {},                                                                                                                                                      
                                                                                                                                                                         
@@ -68,6 +68,7 @@ var App = {
   
       // fill the smart contract with the values from blockchain
       App.shop = await App.contracts.Shop.deployed()
+      //userdata = await App.shop.Users(App.account.toString())
     },
   
     render: async () => {
@@ -94,6 +95,7 @@ var App = {
 
       
       var userdata = await App.shop.Users(App.account.toString())
+
       //console.log(userdata[2].toNumber())
       var myGames = userdata[2].toNumber()
       $('#myGames').html(myGames)

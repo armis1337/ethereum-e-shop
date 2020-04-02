@@ -105,7 +105,7 @@ var App = {
         for (var i=0; i<gamesLen; i++)
         {
           var game = await App.shop.games(i)
-          console.log('i='+i + ' id='+game[1] + ' initialized=' + game[0] + ' name=' + game[3])
+          //console.log('i='+i + ' id='+game[1] + ' initialized=' + game[0] + ' name=' + game[3])
           if(!game[0])
             continue
           $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')

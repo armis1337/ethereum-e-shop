@@ -107,16 +107,21 @@ var App = {
 
       if (game[2] == App.account)
       {
-        $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>"); 
+        $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>")
         $("#buy").remove()   
+      }
+      else if (await App.shop.UserHasGame(App.account, id))
+      {
+        $('#buy').remove()
+        $('.gameInfo').append("<p style='color:red'>You own this item</p>")
       }
       else if (!game[8])
       {
         $('#buy').remove()
       }
       
-      
-      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, App.buy)
+      //console.log(await App.shop.UserHasGame(App.account, id))
+      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, await  App.buy)
         
       //$newTemplate.find('.buy').on('submit', {id: id, price: price}, App.buy)
       App.setLoading(false)
