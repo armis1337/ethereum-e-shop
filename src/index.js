@@ -101,6 +101,24 @@ var App = {
       if (userdata[1].toNumber() != 2)
         $('.admin').remove()
       
+      if (userdata[1].toNumber() == 1)
+      {
+        $('#role').append(' - Seller')
+        $('#role').css('color', 'green')
+      }
+      else if(userdata[1].toNumber() == 2)
+      {
+        $('#role').html(' - Admin')
+        $('#role').css('color', 'red')
+      }
+      else {
+        $('#role').append(' - Normal user')
+      }
+      
+      //var test = await App.shop.Users()
+      //console.log(test)
+
+
       App.setLoading(false)
     },
 

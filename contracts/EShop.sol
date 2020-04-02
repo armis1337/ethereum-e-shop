@@ -25,11 +25,16 @@ contract EShop {
         Groups group;
         uint256 ownedGames;
         mapping (uint256 => Game) myGames;
+        uint256 groupid; // =0 jei normal, >0 jei seller arba admin
     }
 
     enum Groups { Normal, Seller, Admin }
 
-    mapping (address => User) public Users;
+    mapping (address => User) public Users; // all
+    //uint256 public sellersCount;
+    //uint256 public adminCount;
+    address[] public Admins;
+    address[] public Sellers;
 
     constructor() public {
         Users[msg.sender].name = "Armis1337";
@@ -62,7 +67,8 @@ contract EShop {
     {
         games.push(Game(
             {
-                id: gameCount,
+                //id: gameCount,
+                id: games.length,
                 seller: msg.sender,
                 name: _name,
                 short_desc: _sh_desc,
@@ -124,12 +130,47 @@ contract EShop {
         return Users[_addr].myGames[_id].initialized;
     }
 
-    function ChangeGroup (address _addr, Groups _gr) // pakeisti userio grupe, tik adminui
+    function MakeSeller (address _adr)
         public
         onlyAdmin
     {
-        //require(Users[_addr].group != _gr, "user is already in this group");
-        Users[_addr].group = _gr;
+        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
+        Users[_adr].group = Groups.Seller;
+        Sellers.push(_adr);
+        Users[_adr].groupid = Sellers.length;
+        //sellersCount++;
+    }
+
+    function MakeAdmin (address _adr)
+        public
+        onlyAdmin
+    {
+        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
+        Users[_adr].group = Groups.Admin;
+        //Admins[adminCount] = _adr; // mapping
+        Admins.push(_adr);
+        Users[_adr].groupid = Admins.length; // trinant -1 butinai
+        //adminCount++;
+    }
+
+    function MakeNormal (address _adr)
+        public
+        onlyAdmin
+    {
+        require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
+        if (Users[_adr].group == Groups.Admin)
+        {
+            Users[_adr].group == Groups.Normal;
+            delete Admins[Users[_adr].groupid - 1];
+            Users[_adr].groupid = 0;
+        }
+        else if (Users[_adr].group == Groups.Seller)
+        {
+            Users[_adr].group = Groups.Normal;
+            delete Sellers[Users[_adr].groupid - 1];
+            Users[_adr].groupid = 0;
+            // gali but reikia sellersCOunt-- ipist, nzn nebedirba galva jau
+        }
     }
 
     function ChangeName (string memory _new) // pasikeisti savo varda
@@ -145,5 +186,4 @@ contract EShop {
     {
         Users[_addr].name = _new;
     }
-
 }

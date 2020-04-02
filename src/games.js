@@ -124,13 +124,15 @@ var App = {
           var releaseYear = "<p>Year released: " + game[6] + "</p>"
           var soldCopies = "<p>Total sold copies: " + game[7] + "</p>"
           var url = "<a href=" + window.location.origin + "/game.html?id=" + i + ">Game's page</a>"
+          var ii = "<p>i = " + i + "</p>"
+          var id = "<p>id = " + game[1] + "</p>"
           //console.log(url)
           if (game[8] == true)
             var state = "<p>For sale</p>"
           else
             var state = "<p>Not for sale</p>"
 
-          $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state, url)
+          $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state, ii, id, url)
         }
       }
 

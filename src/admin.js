@@ -83,7 +83,7 @@ var App = {
       var userdata = await App.shop.Users(App.account.toString())
       if (userdata[1] != 2)
       {
-        $('#content').html('<center><h2 style="color:red">you are not an admin,<br> get out</h2></center>')
+        $('#content').html('<center><h2 style="color:red">you are not an admin,<br>get out</h2></center>')
         $('#content').append('<br><center><a href="index.html">Home</a></center>')
         App.setLoading(false)
         return
@@ -94,14 +94,31 @@ var App = {
       var gameCount = await App.shop.gameCount()
       var gamesLen = await App.shop.GetGamesLength()
       gamesLen = gamesLen.toNumber()
-      //console.log(gamesLen)
-      for (var i=0; i<gamesLen; i++)
+      gameCount = gameCount.toNumber()
+      //var test = await App.shop.games(0)
+      //console.log('test = ' + test[3] + ' id = ' + test[1])
+      if (gamesLen > 0 && gameCount > 0)
       {
-        var game = await App.shop.games(i)
-        if(!game[0])
-          continue
-        $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
+        $('#gameList').empty()
+        $('#gameList').attr('disabled', false)
+        $(':submit').attr('disabled', false)
+        for (var i=0; i<gamesLen; i++)
+        {
+          var game = await App.shop.games(i)
+          console.log('i='+i + ' id='+game[1] + ' initialized=' + game[0] + ' name=' + game[3])
+          if(!game[0])
+            continue
+          $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
+          //console.log(game[1] + ' - ' + game[3])
+        }
       }
+      else
+      {
+        $('#gameList').attr('disabled', true)
+        $(':submit').attr('disabled', true)
+      }
+      //console.log(gamesLen)
+      
       //$('#editGame').on('submit', {/*id: $("select#gameList").val()*/}, App.renderGame)
       
       App.setLoading(false)
@@ -110,6 +127,8 @@ var App = {
     renderGame: async() => {
       var id = $('#gameList').val()
       var game = await App.shop.games(id)
+      console.log('id = ' + id)
+      console.log('name = ' + game[3])
 
       App.cancelEdit()
 
@@ -125,7 +144,7 @@ var App = {
       form.append('<label for="price">Price (wei): </label>')
       form.append('<input id="price" type="number" step="0.0000001" value="' + game[5] + '" required>')
       form.append('<br>')
-      form.append('<textarea id="shortDesc" rows="4" cols="50" maxlength="280">' + game[4] + '</textarea>')
+      form.append('<textarea id="shortDesc" rows="6" cols="50" maxlength="280">' + game[4] + '</textarea>')
       form.append('<br>')
       if (game[8])
         form.append('<input type="checkbox" id="sale" checked="true">')

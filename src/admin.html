@@ -14,9 +14,11 @@
 		<h2><center>Admin panel</center></h2>
 		<form onSubmit="App.renderGame();
 										return false;">
-			<label for="gameList">Chose a game to edit: </label>
-			<select id="gameList"></select>
-			<button type="submit">OK</button>
+			<label for="gameList">Choose a game to edit: </label>
+			<select id="gameList" disabled="true">
+				<option value="-1">No games</option>
+			</select>
+			<button type="submit" disabled="true">OK</button>
 		</form>
 	</div>
 	<div id = "loader">
