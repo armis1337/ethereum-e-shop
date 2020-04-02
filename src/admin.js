@@ -137,7 +137,7 @@ var App = {
       var list = $('#sellersList')
       list.append('<h4>list of all sellers:</h4')
       var sLen = await App.shop.GetSellersLength();
-      sLen = sLen.toNumber()
+      //sLen = sLen.toNumber()
       for (var i = 0; i < sLen; i++)
       {
         //console.log('i = ' + i)
