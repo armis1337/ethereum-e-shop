@@ -105,15 +105,36 @@ var App = {
         var state = "Not for sale";
       $(".gameInfo #state").html(state);
 
+      //var userdata = await App.shop.Users().then()
+        
+      
+      /*doSomething()
+      .then(function(result) {
+        return doSomethingElse(result);
+      })
+      .then(function(newResult) {
+        return doThirdThing(newResult);
+      })
+      .then(function(finalResult) {
+        console.log('Got the final result: ' + finalResult);
+      });
+      */
+
       if (game[2] == App.account)
       {
         $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>")
-        $("#buy").remove()   
+        $("#buy").remove()
+        console.log('1111')   
       }
       else if (await App.shop.UserHasGame(App.account, id))
       {
         $('#buy').remove()
         $('.gameInfo').append("<p style='color:red'>You own this item</p>")
+      }
+      else if (await App.shop.Users(App.account).then(function(result){return result[1].toNumber()}))
+      {
+        $('#buy').remove()
+        //console.log('seller detected xd')
       }
       else if (!game[8])
       {

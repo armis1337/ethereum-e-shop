@@ -226,8 +226,8 @@ var App = {
     renderGame: async() => {
       var id = $('#gameList').val()
       var game = await App.shop.games(id)
-      console.log('id = ' + id)
-      console.log('name = ' + game[3])
+      //console.log('id = ' + id)
+      //console.log('name = ' + game[3])
 
       App.cancelEdit()
 
