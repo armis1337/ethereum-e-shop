@@ -2,12 +2,11 @@ var App = {
     loading: false,                                                                                                                                                     
     contracts: {},                                                                                                                                                      
                                                                                                                                                                         
-    load: async () => {                                                                                                                                                 
-      //await App.setLoading(true)                                                                                                                                      
+    load: async () => {                                                                                                                                                                                                                                                                                 
       await App.loadWeb3()                                                                                                                                              
       await App.loadAccount()                                                                                                                                           
       await App.loadContract()                                                                                                                                          
-      await App.render()                                                                                                                                                
+      await App.render()                                                                                                                                               
     },                                                                                                                                                                  
                                                                                                                                                                         
     loadWeb3: async () => {                                                                                                                                             
@@ -75,19 +74,26 @@ var App = {
       if (App.loading) {
         return
       }
-      //update the app loading state
       App.setLoading(true)
-      
+
       await App.renderGame()
       App.setLoading(false)
     },
 
     renderGame: async() => {
+      App.setLoading(true)
       //var query_id = window.location.href
       var id = location.search.substring(4)
+      var gamesLen = await App.shop.GetGamesLength()
+      gamesLen = gamesLen.toNumber()
       //console.log(id)
+      if (id > gamesLen)
+        App.goBack()
 
       var game = await App.shop.games(id)
+      if (!game[0])
+        App.goBack()
+
       //console.log(game[4])
       $(".gameInfo #name").html(game[3]);
       $(".gameInfo #desc").html(game[4]);
@@ -101,33 +107,70 @@ var App = {
         var state = "Not for sale";
       $(".gameInfo #state").html(state);
 
+      //var userdata = await App.shop.Users().then()
+        
+      
+      /*doSomething()
+      .then(function(result) {
+        return doSomethingElse(result);
+      })
+      .then(function(newResult) {
+        return doThirdThing(newResult);
+      })
+      .then(function(finalResult) {
+        console.log('Got the final result: ' + finalResult);
+      });
+      */
+
       if (game[2] == App.account)
       {
-        $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>"); 
-        $("#buy").empty()     
+        $(".gameInfo").append("<p style='color:red'>You are seller of this item</p>")
+        $("#buy").remove()
+        console.log('1111')   
+      }
+      else if (await App.shop.UserHasGame(App.account, id))
+      {
+        $('#buy').remove()
+        $('.gameInfo').append("<p style='color:red'>You own this item</p>")
+      }
+      else if (await App.shop.Users(App.account).then(function(result){return result[1].toNumber()}))
+      {
+        $('#buy').remove()
+        //console.log('seller detected xd')
+      }
+      else if (!game[8])
+      {
+        $('#buy').remove()
       }
       
-      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, App.buy)
+      //console.log(await App.shop.UserHasGame(App.account, id))
+      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, await  App.buy)
         
       //$newTemplate.find('.buy').on('submit', {id: id, price: price}, App.buy)
-  
+      App.setLoading(false)
+    },
+
+    goBack: () => {
+      window.location.replace('games.html')
+      window.reload(true)
     },
 
     buy: async (e) => {
       App.setLoading(true)
       e.preventDefault()
       await App.shop.BuyGame(e.data.id, {from: App.account, value: e.data.price})
+      App.setLoading(false)
       window.location.reload()
     },
   
     setLoading: (boolean) => {
-      App.loading = boolean
+      //App.loading = boolean
       const loader = $('#loader')
       const content = $('#content')
       if (boolean)
       {
-        loader.show()
         content.hide()
+        loader.show()
       }
       else
       {

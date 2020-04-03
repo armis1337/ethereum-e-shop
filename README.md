@@ -11,9 +11,9 @@ swx all
   * [x] Zaidimu pirkimas (paprastiems vartotojams)
 \  
 * iteracija 2
-  * [ ] Admin sasaja - Esamu zaidimu redagavimas
-  * [ ] Vartotoju grupes Sellers sukurimas
-  * [ ] Admin sasaja - Vartotoju priskyrimas "sellers" grupei
+  * [x] Admin sasaja - Esamu zaidimu redagavimas
+  * [x] Vartotoju grupes Sellers sukurimas
+  * [x] Admin sasaja - Vartotoju priskyrimas "sellers" grupei
   * [ ] Zaidimu pridejimas bei ju redagavimas "sellers" grupes nariams
 \  
 * iteracija 3
@@ -40,4 +40,12 @@ metamask for browser
 npm install
 truffle migrate --reset
 npm run dev
+```
+#### jeigu metamaskas pisa prota
+```
+ganache > settings > accounts & keys - autogenerate hd mnemonic: on
+restart ganache
+$ ./launch.sh
+logout out of metamask
+login with new mnemonic
 ```

@@ -68,6 +68,7 @@ var App = {
   
       // fill the smart contract with the values from blockchain
       App.shop = await App.contracts.Shop.deployed()
+      App.userdata = await App.shop.Users(App.account.toString())
     },
   
     render: async () => {
@@ -101,51 +102,47 @@ var App = {
     },
 
     renderGames: async() => {
-      var gameCount = await App.shop.gameCount()
+
+      try{
+        var gameCount = await App.shop.gameCount()
+        var gamesLen = await App.shop.GetGamesLength()
+        gamesLen = gamesLen.toNumber()
+      } catch(err) {
+        console.log('eror = ' + err)
+      }
+      
       if (gameCount > 0)
       {
         $(".gameList").html()
         $(".gameList").empty()
         const br = "<br />"
         const hr = "<hr />"
-        for (var i = 0; i < gameCount; i++)
+        for (var i = 0; i < gamesLen; i++)
         {
           //var id = "<p>ID: " + i + "</p>"
           var game = await App.shop.games(i)
-          var name = "<p>Name: " + game[1] +  "</p>"
-          var desc = "<p>Description: " + game[2] + "</p>"
-          var seller = "<p>Seller: " + game[0] + "</p>"
-          var price = "<p>Price: " + game[3] + "</p>"
-          var releaseYear = "<p>Year released: " + game[4] + "</p>"
-          var soldCopies = "<p>Total sold copies: " + game[5] + "</p>"
+          if (!game[0])
+            continue
+          
+          var name = "<p>Name: " + game[3] +  "</p>"
+          var desc = "<p>Description: " + game[4] + "</p>"
+          var seller = "<p>Seller: " + game[2] + "</p>"
+          var price = "<p>Price: " + game[5] + "</p>"
+          var releaseYear = "<p>Year released: " + game[6] + "</p>"
+          var soldCopies = "<p>Total sold copies: " + game[7] + "</p>"
           var url = "<a href=" + window.location.origin + "/game.html?id=" + i + ">Game's page</a>"
-          console.log(url)
-          if (game[6] == true)
+          //var ii = "<p>i = " + i + "</p>"
+          //var id = "<p>id = " + game[1] + "</p>"
+          //console.log(url)
+          if (game[8] == true)
             var state = "<p>For sale</p>"
           else
             var state = "<p>Not for sale</p>"
-
-          $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state, url)
+0
+          $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state,/* ii, id,*/ url)
         }
-      }
-
-        /*if (item[3] == 0)
-        {
-          status = '<p>Status: For sale</p>'
-        }
-        else
-        {
-          status = '</p>Status: Not for sale</p>'
-        }
-        if (App.account == ownerAddress)
-        {
-          $(".gameList").append(hr, id, name, owner, price, status, "you are owner of this item")
-        }
-        else {
-          $(".gameList").append(hr, id, name, owner, price, status)
-        }*/
-        
-      },
+      }        
+    },
   
     setLoading: (boolean) => {
       App.loading = boolean

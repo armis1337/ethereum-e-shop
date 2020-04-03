@@ -1,4 +1,4 @@
-var App = {                                                                                                                                                               
+App = {                                                                                                                                                               
     loading: false,                                                                                                                                                     
     contracts: {},                                                                                                                                                      
                                                                                                                                                                         
@@ -68,6 +68,7 @@ var App = {
   
       // fill the smart contract with the values from blockchain
       App.shop = await App.contracts.Shop.deployed()
+      //userdata = await App.shop.Users(App.account.toString())
     },
   
     render: async () => {
@@ -78,7 +79,7 @@ var App = {
   
       //update the app loading state
       App.setLoading(true)
-      
+
       /*
       //render account
       $('#acc').html(App.account)
@@ -88,18 +89,38 @@ var App = {
       $('#acc').html(App.account)
 
       var gamecount = await App.shop.gameCount()
+      //var gamecount = await App.shop.GetGamesLength()
       gamecount = gamecount.toNumber()
       $('#gameCount').html(gamecount)
 
       
       var userdata = await App.shop.Users(App.account.toString())
+
       //console.log(userdata[2].toNumber())
-      var myGames = userdata[3].toNumber()
+      var myGames = userdata[2].toNumber()
       $('#myGames').html(myGames)
 
-      if (userdata[2].toNumber() != 2)
+      if (userdata[1].toNumber() != 2)
         $('.admin').remove()
       
+      if (userdata[1].toNumber() == 1)
+      {
+        $('#role').append(' - Seller')
+        $('#role').css('color', 'green')
+      }
+      else if(userdata[1].toNumber() == 2)
+      {
+        $('#role').html(' - Admin')
+        $('#role').css('color', 'red')
+      }
+      else {
+        $('#role').append(' - Normal user')
+      }
+      
+      //var test = await App.shop.Users()
+      //console.log(test)
+
+
       App.setLoading(false)
     },
 
@@ -113,6 +134,7 @@ var App = {
       var state = $('#sale').is(":checked")
       await App.shop.CreateGame(name, desc, price, year, state)
       //await App.shop.CreateItem(name)
+      App.setLoading(false)
       window.location.reload()
     },
   
