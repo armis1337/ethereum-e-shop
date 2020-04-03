@@ -74,8 +74,10 @@ var App = {
       if (App.loading) {
         return
       }
-     
+      App.setLoading(true)
+
       await App.renderGame()
+      App.setLoading(false)
     },
 
     renderGame: async() => {
