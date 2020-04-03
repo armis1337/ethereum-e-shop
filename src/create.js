@@ -80,49 +80,27 @@ App = {
       //update the app loading state
       App.setLoading(true)
 
-      /*
-      //render account
-      $('#acc').html(App.account)
-      var admin = await App.shop.admin()
-      $('#adm').html(admin)
-      */
-      $('#acc').html(App.account)
-
-      var gamecount = await App.shop.gameCount()
-      //var gamecount = await App.shop.GetGamesLength()
-      gamecount = gamecount.toNumber()
-      $('#gameCount').html(gamecount)
-
       
       var userdata = await App.shop.Users(App.account.toString())
+      //console.log(userdata[1])
+      //$('.admin').append('<p>' + userdata[1].toNumber() + '</p>')
 
-      //console.log(userdata[2].toNumber())
-      var myGames = userdata[2].toNumber()
-      $('#myGames').html(myGames)
 
-      if (userdata[1].toNumber() != 2)
-        $('.admin').remove()
-      
-      if (userdata[1].toNumber() == 1)
+
+      if (userdata[1].toNumber() != 2 && userdata[1].toNumber() != 1) // if not seller or admin
       {
-        $('#role').append(' - Seller')
-        $('#role').css('color', 'green')
+        //window.alert(typeof userdata[1].toNumber())
+        //window.alert(typeof 2)
+        App.goBack()
       }
-      else if(userdata[1].toNumber() == 2)
-      {
-        $('#role').html(' - Admin')
-        $('#role').css('color', 'red')
-      }
-      else {
-        $('#role').append(' - Normal user')
-        $('.createGame').remove()
-      }
-      
-      //var test = await App.shop.Users()
-      //console.log(test)
-
 
       App.setLoading(false)
+    },
+
+    goBack: () => {
+        //$('#content').remove()
+        window.location.replace('index.html')
+        window.reload(true)
     },
 
     createGame: async () => {
@@ -131,10 +109,8 @@ App = {
       var year = $('#releaseYear').val()
       var price = $('#price').val()
       var desc = $('#shortDesc').val()
-      //var state = $('#sale').val()
       var state = $('#sale').is(":checked")
       await App.shop.CreateGame(name, desc, price, year, state)
-      //await App.shop.CreateItem(name)
       App.setLoading(false)
       window.location.reload()
     },

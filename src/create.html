@@ -1,32 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head>
-        <title>E-Shop for games XD</title>
-
+    <head>
         <style>
-                #content {
-                        display: none;
-                }
-
+            #content {
+                display: none;
+            }
         </style>
-</head>
-<body>
-	<div id="content">
-        <a href="games.html">list of games to buy<br></a>
-        <a class="admin" href="admin.html">Admin page<br></a>
-        <a class="createGame" href="create.html">Add new games<br></a>
-        <h1><center>E-Shop</center></h1>
-        <p>Total number of games in the shop: <span id="gameCount"></span></p>
-        <p>My owned games: <span id="myGames"></span></p>
-        <p>My account is: <span id="acc"></span><span id="role"></span></p>
-        <!--<div class="admin">
-                <center>
-			<h4>Create new game</h6>
-			<form onSubmit="App.createGame(); 
+        <title>Create new game</title>
+    </head>
+    <body>
+    <div id="content">  
+        <div class="admin">
+            <center>
+            <h4>Create new game</h4>
+            <form onSubmit="App.createGame(); 
                             window.alert('Confirm the transaction to create new game'); 
                             return false;">
                 <label for="newGame">Name:</label>
-				<input id="newGame" type="text" placeholder="Game's name" required>
+                <input id="newGame" type="text" placeholder="Game's name" required>
                 <br>
                 <label for="releaseYear">Year:</label>
                 <input id="releaseYear" type="number" min="1900" max="2020" required>
@@ -39,20 +30,15 @@
                 <input type="checkbox" id="sale" checked="true">
                 <label for="sale">Set game for sale</label>
                 <br>
-				<input type="submit" value="Create">
-                </form>
-		</center>
+                <input type="submit" value="Create">
+            </form>
+            </center>
         </div>
-        -->
-        </div>
-        <div id = "loader">
-                <p><center>Loading...</center></p>
-        </div>
-</body>
+    </div>
+
+    </body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="vendor/web3/dist/web3.min.js"></script>
     <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
-    <script src="index.js"></script>
-
+    <script src="create.js"></script>
 </html>
-
