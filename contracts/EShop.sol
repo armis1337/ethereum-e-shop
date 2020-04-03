@@ -38,6 +38,8 @@ contract EShop {
     constructor() public {
         Users[msg.sender].name = "Armis1337";
         Users[msg.sender].group = Groups.Admin;
+        Admins.push(msg.sender);
+        Users[msg.sender].groupid = Admins.length;
     }
 
     modifier onlyAdmin() {
@@ -175,7 +177,7 @@ contract EShop {
         require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
         if (Users[_adr].group == Groups.Admin)
         {
-            Users[_adr].group == Groups.Normal;
+            Users[_adr].group = Groups.Normal;
             delete Admins[Users[_adr].groupid - 1];
             Users[_adr].groupid = 0;
         }

@@ -124,37 +124,101 @@ var App = {
     },
 
     renderGroups: async() => {
+      //prideti userius i sellers
       $('#groups').append('<hr>')
       $('#groups').append('<form id="seller">')
       var form = $('#groups #seller')
       form.append('<p>Add user to "Sellers" group</p>')
-      form.append('<label for="address">Users address: </label>')
-      form.append('<input id="address" type="text" placeholder="0x000..." required>')
+      form.append('<label for="sellerAddress">Users address: </label>')
+      form.append('<input id="sellerAddress" type="text" placeholder="0x000..." required>')
       form.append('<input type="submit" value="Add"></input>')
       form.on('submit', {}, App.makeSeller)
 
+      // visu selleriu sarasas
       $('#groups').append('<div id="sellersList"></div>')
       var list = $('#sellersList')
       list.append('<h4>list of all sellers:</h4')
       var sLen = await App.shop.GetSellersLength();
-      //sLen = sLen.toNumber()
       for (var i = 0; i < sLen; i++)
       {
         //console.log('i = ' + i)
         var addr = await App.shop.Sellers(i)
-        list.append("<p>id: " + i + ", address: " + addr)
+        if(web3.toBigNumber(addr) != 0)
+          list.append("<p>id: " + i + ", address: " + addr)
       }
+
+      // prideti userius i adminus
+      $('#groups').append('<hr>')
+      $('#groups').append('<form id="admin">')
+      var form = $('#groups #admin')
+      form.append('<p>Add user to "Administrator" group</p>')
+      form.append('<label for="adminAddress">Users address: </label>')
+      form.append('<input id="adminAddress" type="text" placeholder="0x000..." required>')
+      form.append('<input type="submit" value="Add"></input>')
+      form.on('submit', {}, App.makeAdmin)
+
+      // visu adminu sarasas
+
+
+      $('#groups').append('<div id="adminList"></div>')
+      var list = $('#adminList')
+      list.append('<h4>list of all administrators:</h4')
+      var aLen = await App.shop.GetAdminsLength();
+      //sLen = sLen.toNumber()
+      for (var i = 0; i < aLen; i++)
+      {
+        //console.log('i = ' + i)
+        var addr = await App.shop.Admins(i)
+        if(web3.toBigNumber(addr) != 0)
+          list.append("<p>id: " + i + ", address: " + addr)
+      }
+
+      // paversti selleri/admina normal useriu
+      $('#groups').append('<hr>')
+      $('#groups').append('<form id="normal">')
+      var form = $('#groups #normal')
+      form.append('<p>Remove users groups</p>')
+      form.append('<label for="userAddress">Users address: </label>')
+      form.append('<input id="userAddress" type="text" placeholder="0x000..." required>')
+      form.append('<input type="submit" value="Remove"></input>')
+      form.on('submit', {}, App.makeNormal)
     },
 
     makeSeller: async(e) => {
       e.preventDefault()
-      var addr = $('#address').val()
+      var addr = $('#sellerAddress').val()
       //
       //reik tikrinimo ar nera jau selleris arba adminas
       //
       App.setLoading(true)
-      window.alert('confirm the transaction to make user\n' + addr + '\n\na Seller')
+      window.alert('confirm the transaction to make user\n' + addr + '\na Seller')
       await App.shop.MakeSeller(addr)
+      App.setLoading(false)
+      window.location.reload()
+    },
+
+    makeAdmin: async(e) => {
+      e.preventDefault()
+      var addr = $('#adminAddress').val()
+      //
+      // irgi tikrinimo reik
+      //
+      App.setLoading(true)
+      window.alert('confirm the transaction to make user\n' + addr + '\nAdmin')
+      await App.shop.MakeAdmin(addr)
+      App.setLoading(false)
+      window.location.reload()
+    },
+
+    makeNormal: async(e) => {
+      e.preventDefault()
+      var addr = $('#userAddress').val()
+      //
+      // irgi tikrinimo reik
+      //
+      App.setLoading(true)
+      window.alert('confirm the transaction to make user\n' + addr + '\nNormal user')
+      await App.shop.MakeNormal(addr)
       App.setLoading(false)
       window.location.reload()
     },
@@ -167,7 +231,8 @@ var App = {
 
       App.cancelEdit()
 
-      $('#content').append('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
+      //$('#content').append('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
+      $('.games').after('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
       var form = $('#updateGame')
       form.append('<hr>')
       form.append('<label for="name">Game\'s name: </label>')
