@@ -1,4 +1,5 @@
 pragma solidity ^0.6;
+//pragma experimental ABIEncoderV2;
 
 contract EShop {
 
@@ -30,8 +31,6 @@ contract EShop {
     enum Groups { Normal, Seller, Admin }
 
     mapping (address => User) public Users; // all
-    //uint256 public sellersCount;
-    //uint256 public adminCount;
     address[] public Admins;
     address[] public Sellers;
 
@@ -202,5 +201,60 @@ contract EShop {
         onlyAdmin
     {
         Users[_addr].name = _new;
+    }
+
+    function GetSellersGames(address _adr)
+        public
+        view
+        returns (bytes32[] memory)
+    {
+        bytes32[] memory arr;
+        uint256 k = 0;
+        for (uint256 i = 0; i<games.length; i++)
+        {
+            if (games[i].seller == _adr)
+            {
+                arr[k] = bytes32(games[i].id); // zaidimo id
+                k++;
+            }
+        }
+        return arr;
+    }
+
+    function GetUsersGames(address _adr)
+        public
+        view
+        returns (bytes32[] memory)
+    {
+        //require(Users[_adr].group == Groups.Seller, "user is not a seller");
+        //uint256 len = Users[_adr].ownedGames;
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        uint256 k;
+        for (uint256 i = 0; i<games.length; i++)
+        {
+            if (UserHasGame(_adr, i))
+            {
+                arr[k] = bytes32(i);
+                k++;
+            }
+        }
+
+
+        return arr;
+    }
+
+    function Test ()
+        public
+        pure
+        returns (bytes32[10] memory)
+    {
+        bytes32[10] memory arr;
+        //string memory res;
+        for(uint256 i = 0; i<10; i++)
+        {
+           // res = string(i);
+            arr[i] = bytes32(i*2);
+        }
+        return arr;
     }
 }

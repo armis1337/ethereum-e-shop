@@ -82,7 +82,7 @@ var App = {
       
       //check if admin
       var userdata = await App.shop.Users(App.account.toString())
-      if (userdata[1] != 2)
+      if (userdata[1] == 0)
       {
         $('#content').html('<center><h2 style="color:red">you are not an admin,<br>get out</h2></center>')
         $('#content').append('<br><center><a href="index.html">Home</a></center>')
