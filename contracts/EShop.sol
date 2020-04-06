@@ -23,7 +23,7 @@ contract EShop {
     struct User {
         string name;
         Groups group;
-        uint256 ownedGames;
+        uint256 ownedGames; // arba createdGames jei adminas arba selleris
         mapping (uint256 => Game) myGames;
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
     }
@@ -61,6 +61,11 @@ contract EShop {
         _;
     }
 
+    modifier onlyOwner(uint256 _id) {
+        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin, "You are not an owner of this item");
+        _;
+    }
+
     function CreateGame (string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
         onlySeller
@@ -79,11 +84,12 @@ contract EShop {
                 initialized: true
             }));
         gameCount ++;
+        Users[msg.sender].ownedGames ++;
     }
 
     function UpdateGame (uint256 _id, string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
-        onlyAdmin
+        onlyOwner(_id)
     {
         games[_id].name = _name;
         games[_id].short_desc = _sh_desc;
@@ -94,8 +100,9 @@ contract EShop {
 
     function DeleteGame (uint256 _id)
         public
-        onlyAdmin
+        onlyOwner(_id)
     {
+        Users[games[_id].seller].ownedGames--;
         delete games[_id];
         gameCount--;
     }
@@ -208,7 +215,7 @@ contract EShop {
         view
         returns (bytes32[] memory)
     {
-        bytes32[] memory arr;
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
         uint256 k = 0;
         for (uint256 i = 0; i<games.length; i++)
         {
@@ -238,12 +245,10 @@ contract EShop {
                 k++;
             }
         }
-
-
         return arr;
     }
 
-    function Test ()
+    /*function Test ()
         public
         pure
         returns (bytes32[10] memory)
@@ -257,4 +262,19 @@ contract EShop {
         }
         return arr;
     }
+
+    event print(string msg1, string msg2);
+    event print2(address a, uint256 b);
+    event print3(string m, uint256 len);
+    event print4(uint256 ownedgames);
+    function Test2(address _adr)
+        public
+    {
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        emit print2(_adr, arr.length);
+        bytes32[] memory arr2 = new bytes32[](10);
+        emit print3('10 dydzio', arr2.length);
+        emit print4(Users[_adr].ownedGames);
+    }
+    */
 }

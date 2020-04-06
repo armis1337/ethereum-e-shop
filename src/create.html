@@ -36,6 +36,21 @@
             </form>
             </center>
         </div>
+        <div class="editGames">
+            <hr>
+            <form class="games" onSubmit="App.renderGame();
+										return false;">
+                <label for="gameList">Choose a game to edit: </label>
+                <select id="gameList" disabled="true">
+                    <option value="-1">No games</option>
+                </select>
+                <button type="submit" disabled="true">OK</button>
+		    </form>
+        </div>
+        <div class="myGames">
+            <hr>
+            <p>You haven't added any games yet</p>
+        </div>
     </div>
 
     </body>

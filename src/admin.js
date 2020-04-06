@@ -276,6 +276,7 @@ var App = {
       var year = $('#year').val()
       var price = $('#price').val()
       var desc = $('#shortDesc').val()
+      console.log(desc)
       var state = $('#sale').is(":checked")
       //console.log(name, year, price, desc, state)
       //await App.setLoading(true)

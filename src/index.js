@@ -94,11 +94,13 @@ App = {
       $('#gameCount').html(gamecount)
 
       
-      var userdata = await App.shop.Users(App.account.toString())
+      var userdata = await App.shop.Users(App.account)
 
       //console.log(userdata[2].toNumber())
       var myGames = userdata[2].toNumber()
-      $('#myGames').html(myGames)
+      if(userdata[1] == 1 || userdata[1] == 2)
+        $('#myGames').html('My created games: ')
+      $('#myGames').append(userdata[2].toNumber())
 
       if (userdata[1].toNumber() != 2)
         $('.admin').remove()
