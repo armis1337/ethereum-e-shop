@@ -23,7 +23,7 @@ contract EShop {
     struct User {
         string name;
         Groups group;
-        uint256 ownedGames; // arba createdGames jei adminas arba selleris
+        uint256 ownedGames; //  createdGames jei adminas arba selleris
         mapping (uint256 => Game) myGames;
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
     }
@@ -46,13 +46,13 @@ contract EShop {
         _;
     }
 
-    modifier onlyNormal() {
-        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
+    modifier onlySeller() { // or admin XD
+        require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin, "you cant do this");
         _;
     }
 
-    modifier onlySeller() { // or admin XD
-        require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin, "you cant do this");
+    modifier onlyNormal() {
+        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
         _;
     }
 
@@ -110,7 +110,7 @@ contract EShop {
     function BuyGame (uint256 _id)
         public
         payable
-        notSeller
+        onlyNormal
     {
         require(games[_id].state == true, "this game is not for sale");
         require(msg.value >= games[_id].price, "not enough ether");
@@ -157,7 +157,14 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
+        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
+        //require(Users[_adr].ownedGames == 0, "User cannot have any games to change his group");
+        require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
+                Users[_adr].group == Groups.Admin, "user cannot become seller");
+
+        if (Users[_adr].group == Groups.Admin)
+            delete Admins[Users[_adr].groupid - 1];
+
         Users[_adr].group = Groups.Seller;
         Sellers.push(_adr);
         Users[_adr].groupid = Sellers.length;
@@ -168,12 +175,15 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
+        require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
+                Users[_adr].group == Groups.Seller, "user cannot become admin");
+        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
+        if (Users[_adr].group == Groups.Seller)
+            delete Sellers[Users[_adr].groupid - 1];
+
         Users[_adr].group = Groups.Admin;
-        //Admins[adminCount] = _adr; // mapping
         Admins.push(_adr);
         Users[_adr].groupid = Admins.length; // trinant -1 butinai
-        //adminCount++;
     }
 
     function MakeNormal (address _adr)
@@ -181,6 +191,7 @@ contract EShop {
         onlyAdmin
     {
         require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
+        require(Users[_adr].ownedGames == 0, "User cannot have created games");
         if (Users[_adr].group == Groups.Admin)
         {
             Users[_adr].group = Groups.Normal;
@@ -192,7 +203,6 @@ contract EShop {
             Users[_adr].group = Groups.Normal;
             delete Sellers[Users[_adr].groupid - 1];
             Users[_adr].groupid = 0;
-            // gali but reikia sellersCOunt-- ipist, nzn nebedirba galva jau
         }
     }
 

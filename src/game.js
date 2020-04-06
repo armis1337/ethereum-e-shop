@@ -144,7 +144,7 @@ var App = {
       }
       
       //console.log(await App.shop.UserHasGame(App.account, id))
-      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, await  App.buy)
+      $('#buy').on('submit', {id: id, price: game[5].toFixed()}, App.buy)
         
       //$newTemplate.find('.buy').on('submit', {id: id, price: price}, App.buy)
       App.setLoading(false)

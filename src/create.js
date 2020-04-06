@@ -72,15 +72,10 @@ App = {
     },
   
     render: async () => {
-      // prevent double render
       if (App.loading) {
         return
       }
-  
-      //update the app loading state
       App.setLoading(true)
-
-      
       var userdata = await App.shop.Users(App.account.toString())
 
       if (userdata[1].toNumber() != 2 && userdata[1].toNumber() != 1) // if not seller or admin
@@ -139,7 +134,7 @@ App = {
 
     renderGames: async() => {
       var createdGames = await App.shop.GetSellersGames(App.account)
-      console.log(createdGames.length)
+      //console.log(createdGames.length)
 
       // render users created games into table AND dropdown
 
@@ -162,7 +157,9 @@ App = {
         table.find('tr').append('<td>Price</td>')
         table.find('tr').append('<td>Sold copies</td>')
         table.find('tr').append('<td>Status</td>')
-
+        
+        // sukuriam dropdown
+        
         // sutvarkom dropdown
         $('#gameList').empty()
         $('#gameList').attr('disabled', false)
