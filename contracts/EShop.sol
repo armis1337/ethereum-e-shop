@@ -1,4 +1,5 @@
 pragma solidity ^0.6;
+//pragma experimental ABIEncoderV2;
 
 contract EShop {
 
@@ -22,7 +23,7 @@ contract EShop {
     struct User {
         string name;
         Groups group;
-        uint256 ownedGames;
+        uint256 ownedGames; //  createdGames jei adminas arba selleris
         mapping (uint256 => Game) myGames;
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
     }
@@ -30,8 +31,6 @@ contract EShop {
     enum Groups { Normal, Seller, Admin }
 
     mapping (address => User) public Users; // all
-    //uint256 public sellersCount;
-    //uint256 public adminCount;
     address[] public Admins;
     address[] public Sellers;
 
@@ -47,18 +46,23 @@ contract EShop {
         _;
     }
 
-    modifier onlyNormal() {
-        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
-        _;
-    }
-
     modifier onlySeller() { // or admin XD
         require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin, "you cant do this");
         _;
     }
 
+    modifier onlyNormal() {
+        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
+        _;
+    }
+
     modifier notSeller() {
         require(Users[msg.sender].group != Groups.Seller, "Sellers cant buy games!");
+        _;
+    }
+
+    modifier onlyOwner(uint256 _id) {
+        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin, "You are not an owner of this item");
         _;
     }
 
@@ -80,11 +84,12 @@ contract EShop {
                 initialized: true
             }));
         gameCount ++;
+        Users[msg.sender].ownedGames ++;
     }
 
     function UpdateGame (uint256 _id, string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
-        onlyAdmin
+        onlyOwner(_id)
     {
         games[_id].name = _name;
         games[_id].short_desc = _sh_desc;
@@ -95,8 +100,9 @@ contract EShop {
 
     function DeleteGame (uint256 _id)
         public
-        onlyAdmin
+        onlyOwner(_id)
     {
+        Users[games[_id].seller].ownedGames--;
         delete games[_id];
         gameCount--;
     }
@@ -104,7 +110,7 @@ contract EShop {
     function BuyGame (uint256 _id)
         public
         payable
-        notSeller
+        onlyNormal
     {
         require(games[_id].state == true, "this game is not for sale");
         require(msg.value >= games[_id].price, "not enough ether");
@@ -151,7 +157,14 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
+        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
+        //require(Users[_adr].ownedGames == 0, "User cannot have any games to change his group");
+        require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
+                Users[_adr].group == Groups.Admin, "user cannot become seller");
+
+        if (Users[_adr].group == Groups.Admin)
+            delete Admins[Users[_adr].groupid - 1];
+
         Users[_adr].group = Groups.Seller;
         Sellers.push(_adr);
         Users[_adr].groupid = Sellers.length;
@@ -162,12 +175,15 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
+        require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
+                Users[_adr].group == Groups.Seller, "user cannot become admin");
+        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
+        if (Users[_adr].group == Groups.Seller)
+            delete Sellers[Users[_adr].groupid - 1];
+
         Users[_adr].group = Groups.Admin;
-        //Admins[adminCount] = _adr; // mapping
         Admins.push(_adr);
         Users[_adr].groupid = Admins.length; // trinant -1 butinai
-        //adminCount++;
     }
 
     function MakeNormal (address _adr)
@@ -175,6 +191,7 @@ contract EShop {
         onlyAdmin
     {
         require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
+        require(Users[_adr].ownedGames == 0, "User cannot have created games");
         if (Users[_adr].group == Groups.Admin)
         {
             Users[_adr].group = Groups.Normal;
@@ -186,7 +203,6 @@ contract EShop {
             Users[_adr].group = Groups.Normal;
             delete Sellers[Users[_adr].groupid - 1];
             Users[_adr].groupid = 0;
-            // gali but reikia sellersCOunt-- ipist, nzn nebedirba galva jau
         }
     }
 
@@ -203,4 +219,72 @@ contract EShop {
     {
         Users[_addr].name = _new;
     }
+
+    function GetSellersGames(address _adr)
+        public
+        view
+        returns (bytes32[] memory)
+    {
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        uint256 k = 0;
+        for (uint256 i = 0; i<games.length; i++)
+        {
+            if (games[i].seller == _adr)
+            {
+                arr[k] = bytes32(games[i].id); // zaidimo id
+                k++;
+            }
+        }
+        return arr;
+    }
+
+    function GetUsersGames(address _adr)
+        public
+        view
+        returns (bytes32[] memory)
+    {
+        //require(Users[_adr].group == Groups.Seller, "user is not a seller");
+        //uint256 len = Users[_adr].ownedGames;
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        uint256 k;
+        for (uint256 i = 0; i<games.length; i++)
+        {
+            if (UserHasGame(_adr, i))
+            {
+                arr[k] = bytes32(i);
+                k++;
+            }
+        }
+        return arr;
+    }
+
+    /*function Test ()
+        public
+        pure
+        returns (bytes32[10] memory)
+    {
+        bytes32[10] memory arr;
+        //string memory res;
+        for(uint256 i = 0; i<10; i++)
+        {
+           // res = string(i);
+            arr[i] = bytes32(i*2);
+        }
+        return arr;
+    }
+
+    event print(string msg1, string msg2);
+    event print2(address a, uint256 b);
+    event print3(string m, uint256 len);
+    event print4(uint256 ownedgames);
+    function Test2(address _adr)
+        public
+    {
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        emit print2(_adr, arr.length);
+        bytes32[] memory arr2 = new bytes32[](10);
+        emit print3('10 dydzio', arr2.length);
+        emit print4(Users[_adr].ownedGames);
+    }
+    */
 }

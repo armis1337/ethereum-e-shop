@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "lite-server",
+    "debug": "nodemon --inspect ./bin/www",
     "test": "echo \"Error: no test specified\" && sexit 1"
   },
   "author": "arminas.glusinskas@mif.stud.vu.lt",
