@@ -12,38 +12,13 @@
 </head>
 <body>
 	<div id="content">
-        <a href="games.html">list of games to buy<br></a>
+        <a href="games.html">List of games<br></a>
         <a class="admin" href="admin.html">Admin page<br></a>
-        <a class="createGame" href="create.html">Add new games<br></a>
+        <a class="seller" href="seller.html">Seller's page<br></a>
         <h1><center>E-Shop</center></h1>
         <p>Total number of games in the shop: <span id="gameCount"></span></p>
         <p id="myGames">My owned games: </p>
         <p>My account is: <span id="acc"></span><span id="role"></span></p>
-        <!--<div class="admin">
-                <center>
-			<h4>Create new game</h6>
-			<form onSubmit="App.createGame(); 
-                            window.alert('Confirm the transaction to create new game'); 
-                            return false;">
-                <label for="newGame">Name:</label>
-				<input id="newGame" type="text" placeholder="Game's name" required>
-                <br>
-                <label for="releaseYear">Year:</label>
-                <input id="releaseYear" type="number" min="1900" max="2020" required>
-                <br>
-                <label for="price">Price (wei):</label>
-                <input id="price" type="number" step="0.0000001" placeholder="Price in wei" required>
-                <br>
-                <textarea id="shortDesc" rows="4" cols="50" maxlength="280" placeholder="Short description"></textarea>
-                <br>
-                <input type="checkbox" id="sale" checked="true">
-                <label for="sale">Set game for sale</label>
-                <br>
-				<input type="submit" value="Create">
-                </form>
-		</center>
-        </div>
-        -->
         </div>
         <div id = "loader">
                 <p><center>Loading...</center></p>
@@ -52,7 +27,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="vendor/web3/dist/web3.min.js"></script>
     <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
-    <script src="index.js"></script>
+    <script type="module" src="index.js"></script>
 
 </html>
 

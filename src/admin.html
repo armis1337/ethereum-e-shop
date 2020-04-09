@@ -12,15 +12,6 @@
 	<div id = "content">
 		<a href = "index.html">Home</a>
 		<h2><center>Admin panel</center></h2>
-		<form class="games" onSubmit="App.renderGame();
-										return false;">
-			<label for="gameList">Choose a game to edit: </label>
-			<select id="gameList" disabled="true">
-				<option value="-1">No games</option>
-			</select>
-			<button type="submit" disabled="true">OK</button>
-		</form>
-		<div id = "groups"></div>
 	</div>
 	<div id = "loader">
 		<center>Loading...</center>
@@ -29,5 +20,5 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="vendor/web3/dist/web3.min.js"></script>
   <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
-  <script src="admin.js"></script>
+  <script type="module" src="admin.js"></script>
 </html>

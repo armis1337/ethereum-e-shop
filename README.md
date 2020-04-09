@@ -15,7 +15,7 @@ swx all
   * [x] Vartotoju grupes Sellers sukurimas
   * [x] Admin sasaja - Vartotoju priskyrimas "sellers" grupei
   * [x] Zaidimu pridejimas bei ju redagavimas "sellers" grupes nariams
-  * [ ] Sutvarkyt viska normalei
+  * [x] Sutvarkyt viska normalei  - perrasytas visas .js funkcionalumas 
 \  
 * iteracija 3
   * [ ] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 

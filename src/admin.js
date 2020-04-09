@@ -1,323 +1,309 @@
-var App = {                                                                                                                                                               
-    loading: false,       // bv false                                                                                                                                               
-    contracts: {},                                                                                                                                                      
-                                                                                                                                                                        
-    load: async () => {       
-      //App.setLoading(true)                                                                                                                                                                                                                                                                              
-      await App.loadWeb3()                                                                                                                                              
-      await App.loadAccount()                                                                                                                                           
-      await App.loadContract()  
-      //App.setLoading(false)                                                                                                                                           
-      await App.render()                                                                                                                                             
-    },                                                                                                                                                                  
-                                                                                                                                                                        
-    loadWeb3: async () => {                                                                                                                                             
-      if(typeof web3 !== 'undefined')                                                                                                                                   
-      {                                                                                                                                                                 
-        App.web3Provider = web3.currentProvider                                                                                                                         
-        web3 = new Web3(web3.currentProvider)                                                                                                                           
-      }                                                                                                                                                                 
-      else                                                                                                                                                              
-      {                                                                                                                                                                 
-        window.alert("Pls connect to metamask...")                                                                                                                      
-      }
-      // modern dapp browsers
-      if (window.ethereum){
-        window.web3 = new Web3(ethereum)
-        //console.log("sweiki")
-        try
+import {Main} from './seller.js'
+
+class Admin extends Main {
+    async render (){
+        main.setLoading(true)
+        await main.load()
+
+        if (main.App.userdata[1].toNumber() != 2)
         {
-          //request account access if needed
-          await ethereum.enable()
-          //accounts now exposed
-          //web3.eth.sendTransaction({/* ... */})
+            main.goBack()
+            return false
         }
-        catch (error)
-        {
-          //user denied account access...
-          console.log(error)
-          //window.alert("Please allow access")
-        }
-      }
-      // legacy dapp browsers
-      else if (window.web3)
-      {
-        App.web3Provider = web3.currentProvider
-        window.web3 = new Web3(web3.currentProvider)
-        // accounts always exposed
-        //web3.eth.sendTransaction({/* ... */})
-      }
-      // non-dapp browsers
-      else
-      {
-        console.log('non-ethereum browser detected. you should consider trying metamask!')
-      }
-    },
-  
-    loadAccount: async () => {
-      // set the current blockchain account
-      const accounts = await ethereum.enable()
-      //App.account = accounts[0]
-      App.account = web3.eth.accounts[0]
-    },
-  
-    loadContract: async () => {
-      //create a javascript version of the smart contract 
-      const shop = await $.getJSON('EShop.json')
-      App.contracts.Shop = TruffleContract(shop)
-      App.contracts.Shop.setProvider(App.web3Provider)
-  
-      // fill the smart contract with the values from blockchain
-      App.shop = await App.contracts.Shop.deployed()
-    },
-  
-    render: async () => {
-      // prevent double render
-      if (App.loading) {
-        return
-      }
-  
-      //update the app loading state
-      App.setLoading(true)
-      
-      //check if admin
-      var userdata = await App.shop.Users(App.account.toString())
-      if (userdata[1] == 0)
-      {
-        $('#content').html('<center><h2 style="color:red">you are not an admin,<br>get out</h2></center>')
-        $('#content').append('<br><center><a href="index.html">Home</a></center>')
-        App.setLoading(false)
-        return
-      }
-
-      //add games to dropdown list
-      var gameCount = await App.shop.gameCount()
-      var gamesLen = await App.shop.GetGamesLength()
-      gamesLen = gamesLen.toNumber()
-      gameCount = gameCount.toNumber()
-      //var test = await App.shop.games(0)
-      //console.log('test = ' + test[3] + ' id = ' + test[1])
-      if (gamesLen > 0 && gameCount > 0)
-      {
-        $('#gameList').empty()
-        $('#gameList').attr('disabled', false)
-        $('.games :submit').attr('disabled', false)
-        for (var i=0; i<gamesLen; i++)
-        {
-          var game = await App.shop.games(i)
-          //console.log('i='+i + ' id='+game[1] + ' initialized=' + game[0] + ' name=' + game[3])
-          if(!game[0])
-            continue
-          $('#gameList').append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
-          //console.log(game[1] + ' - ' + game[3])
-        }
-      }
-      else
-      {
-        $('#gameList').attr('disabled', true)
-        $('.games :submit').attr('disabled', true)
-      }
-
-      await App.renderGroups()
-      
-      App.setLoading(false)
-    },
-
-    renderGroups: async() => {
-      //prideti userius i sellers
-      $('#groups').append('<hr>')
-      $('#groups').append('<form id="seller">')
-      var form = $('#groups #seller')
-      form.append('<p>Add user to "Sellers" group</p>')
-      form.append('<label for="sellerAddress">Users address: </label>')
-      form.append('<input id="sellerAddress" type="text" placeholder="0x000..." required>')
-      form.append('<input type="submit" value="Add"></input>')
-      form.on('submit', {}, App.makeSeller)
-
-      // visu selleriu sarasas
-      $('#groups').append('<div id="sellersList"></div>')
-      var list = $('#sellersList')
-      list.append('<h4>list of all sellers:</h4')
-      var sLen = await App.shop.GetSellersLength();
-      for (var i = 0; i < sLen; i++)
-      {
-        //console.log('i = ' + i)
-        var addr = await App.shop.Sellers(i)
-        if(web3.toBigNumber(addr) != 0)
-          list.append("<p>id: " + i + ", address: " + addr)
-      }
-
-      // prideti userius i adminus
-      $('#groups').append('<hr>')
-      $('#groups').append('<form id="admin">')
-      var form = $('#groups #admin')
-      form.append('<p>Add user to "Administrator" group</p>')
-      form.append('<label for="adminAddress">Users address: </label>')
-      form.append('<input id="adminAddress" type="text" placeholder="0x000..." required>')
-      form.append('<input type="submit" value="Add"></input>')
-      form.on('submit', {}, App.makeAdmin)
-
-      // visu adminu sarasas
-
-
-      $('#groups').append('<div id="adminList"></div>')
-      var list = $('#adminList')
-      list.append('<h4>list of all administrators:</h4')
-      var aLen = await App.shop.GetAdminsLength();
-      //sLen = sLen.toNumber()
-      for (var i = 0; i < aLen; i++)
-      {
-        //console.log('i = ' + i)
-        var addr = await App.shop.Admins(i)
-        if(web3.toBigNumber(addr) != 0)
-          list.append("<p>id: " + i + ", address: " + addr)
-      }
-
-      // paversti selleri/admina normal useriu
-      $('#groups').append('<hr>')
-      $('#groups').append('<form id="normal">')
-      var form = $('#groups #normal')
-      form.append('<p>Remove users groups</p>')
-      form.append('<label for="userAddress">Users address: </label>')
-      form.append('<input id="userAddress" type="text" placeholder="0x000..." required>')
-      form.append('<input type="submit" value="Remove"></input>')
-      form.on('submit', {}, App.makeNormal)
-    },
-
-    makeSeller: async(e) => {
-      e.preventDefault()
-      var addr = $('#sellerAddress').val()
-      //
-      //reik tikrinimo ar nera jau selleris arba adminas
-      //
-      App.setLoading(true)
-      window.alert('confirm the transaction to make user\n' + addr + '\na Seller')
-      await App.shop.MakeSeller(addr)
-      App.setLoading(false)
-      window.location.reload()
-    },
-
-    makeAdmin: async(e) => {
-      e.preventDefault()
-      var addr = $('#adminAddress').val()
-      //
-      // irgi tikrinimo reik
-      //
-      App.setLoading(true)
-      window.alert('confirm the transaction to make user\n' + addr + '\nAdmin')
-      await App.shop.MakeAdmin(addr)
-      App.setLoading(false)
-      window.location.reload()
-    },
-
-    makeNormal: async(e) => {
-      e.preventDefault()
-      var addr = $('#userAddress').val()
-      //
-      // irgi tikrinimo reik
-      //
-      App.setLoading(true)
-      window.alert('confirm the transaction to make user\n' + addr + '\nNormal user')
-      await App.shop.MakeNormal(addr)
-      App.setLoading(false)
-      window.location.reload()
-    },
-    
-    renderGame: async() => {
-      var id = $('#gameList').val()
-      var game = await App.shop.games(id)
-      //console.log('id = ' + id)
-      //console.log('name = ' + game[3])
-
-      App.cancelEdit()
-
-      //$('#content').append('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
-      $('.games').after('<div id="editGame"><form id="updateGame" onSubmit="App.updateGame(' + id + ');return false;"></form></div>')
-      var form = $('#updateGame')
-      form.append('<hr>')
-      form.append('<label for="name">Game\'s name: </label>')
-      form.append('<input id="name" type="text" value="' + game[3]  + '" required>')
-      form.append('<br>')
-      form.append('<label for="year">Year: </label>')
-      form.append('<input id="year" type="number" value="' + game[6] + '" required>')
-      form.append('<br>')
-      form.append('<label for="price">Price (wei): </label>')
-      form.append('<input id="price" type="number" step="0.0000001" value="' + game[5] + '" required>')
-      form.append('<br>')
-      form.append('<textarea id="shortDesc" rows="6" cols="50" maxlength="280">' + game[4] + '</textarea>')
-      form.append('<br>')
-      if (game[8])
-        form.append('<input type="checkbox" id="sale" checked="true">')
-      else 
-        form.append('<input type="checkbox" id="sale">')
-      //console.log(game[8])
-      form.append('<label for="sale">Set game on sale </label>')
-      form.append('<br>')
-      form.append('<button type="submit">Done</button>')
-      form.append('    <button onClick="App.deleteGame('+ id +')" type="button" style="color:red">DELETE GAME</button>')
-      form.append('<br>')
-      form.append('<button onClick="App.cancelEdit(); return false;" type="button">Cancel</button>')
-    },
-
-    cancelEdit: () => {
-      $('#editGame').remove()
-    },
-
-    deleteGame: async(id) => {
-      App.setLoading(true)
-      window.alert("confirm the transaction if you really want to delete this game")
-      await App.shop.DeleteGame(id)
-      window.location.reload()
-    },
-
-    updateGame: async(id) => {
-      App.setLoading(true)
-      var name = $('#name').val()
-      var year = $('#year').val()
-      var price = $('#price').val()
-      var desc = $('#shortDesc').val()
-      console.log(desc)
-      var state = $('#sale').is(":checked")
-      //console.log(name, year, price, desc, state)
-      //await App.setLoading(true)
-      window.alert("confirm the transaction to submit game's changes")
-      await App.shop.UpdateGame(id, name, desc, price, year, state);
-      window.location.reload()
-    },
-
-    createGame: async () => {
-      App.setLoading(true)
-      var name = $('#newGame').val()
-      var year = $('#releaseYear').val()
-      var price = $('#price').val()
-      var desc = $('#shortDesc').val()
-      //var state = $('#sale').val()
-      var state = $('#sale').is(":checked")
-      await App.shop.CreateGame(name, desc, price, year, state)
-      //await App.shop.CreateItem(name)
-      window.location.reload()
-    },
-  
-    setLoading: (boolean) => {
-      App.loading = boolean
-      const loader = $('#loader')
-      const content = $('#content')
-      if (boolean)
-      {
-        loader.show()
-        content.hide()
-      }
-      else
-      {
-        loader.hide()
-        content.show()
-      }
+        
+        await main.renderOptions()
+        main.setLoading(false)
     }
-  }
+
+    async renderOptions() {
+        super.renderOptions()
+        var options = $('#options')
+        options.find('#2').html('All games')
+        options.find('#2').unbind()
+        options.find('#2').on('click', main.renderAllGames)
+        options.find('#3').unbind()
+        options.find('#3').on('click', main.renderUpdateGame)
+        options.append('<br>')
+        options.append('<button type="button" id="4">Manage admin group</button>')
+        options.append('<button type="button" id="5">Manage sellers group</button>')
+        options.append('<button type="button" id="6">Remove user\'s rights</button>')
+        options.find('#4').on('click', main.renderAdmins)
+        options.find('#5').on('click', main.renderSellers)
+        options.find('#6').on('click', main.renderRemoveGroups)
+        $('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
+    }
+
+    async renderRemoveGroups () {
+        if($('#remove').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        main.clearContent()
+
+        $('#options').after('<div id="removeGroups"></div>')
+        var div = $('#removeGroups')
+        div.hide()
+
+        div.css({'padding':'10px', 'text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        
+        div.append('<form id="normal">')
+        var form = $('#normal')
+        form.append('<p>Remove users groups</p>')
+        form.append('<label for="userAddress">Users address: </label>')
+        form.append('<input id="userAddress" type="text" placeholder="0x000..." required>')
+        form.append('<input type="submit" value="Remove"></input>')
+        form.submit(main.makeNormal)
+        
+        div.show()
+    }
+
+    async renderSellers () {
+        if($('#sellers').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        main.clearContent()
+
+        $('#options').after('<div id="sellers"></div>')
+        var div = $('#sellers')
+        div.hide()
+
+        div.css({'text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        
+        // add seller
+        div.append('<form id="addSeller"></form>')
+        var form = $('#addSeller')
+        form.append('<p>Add user to "Seller" group</p>')
+        form.append('<label for="sellerAddress">Users address: </label>')
+        form.append('<input id="sellerAddress" type="text" placeholder="0x000..." required>')
+        form.append('&nbsp;<input type="submit" value="Add"></input>')
+        form.submit(main.makeSeller)
+
+        // list sellers
+        div.append('<h4>List of all shop\'s sellers</h4>')
+        var slen = await main.App.shop.GetSellersLength()
+        if (slen > 0)
+        {
+            div.append('<ol id="sellerList"></ol>')
+            var ol = $('#sellerList')
+            ol.css({'list-style-position':'inside'})
+            for (var i = 0; i<slen; i++)
+            {   
+                var adr = await main.App.shop.Sellers(i)
+                if(web3.toBigNumber(adr) != 0 )
+                    ol.append('<li>' + adr + '</li>')
+            }
+        }
+        else{
+            div.append('<p>There are no sellers at the moment</p>')
+        }
+        div.show()
+    }
+
+    async renderAdmins () {
+        if($('#admins').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        main.clearContent()
+
+        $('#options').after('<div id="admins"></div>')
+        var div = $('#admins')
+        div.hide()
+
+        div.css({'text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        
+        // add admin
+        div.append('<form id="addAdmin"></form>')
+        var form = $('#addAdmin')
+        form.append('<p>Add user to "Administrator" group</p>')
+        form.append('<label for="adminAddress">Users address: </label>')
+        form.append('<input id="adminAddress" type="text" placeholder="0x000..." required>')
+        form.append('&nbsp;<input type="submit" value="Add"></input>')
+        form.submit(main.makeAdmin)
+
+        // admin list
+        div.append('<h4>List of all shop\'s administrators</h4>')
+        var alen = await main.App.shop.GetAdminsLength()
+        if (alen > 0)
+        {
+            div.append('<ol id="adminList"></ol>')
+            var ol = $('#adminList')
+            ol.css({'list-style-position':'inside'})
+            for (var i = 0; i<alen; i++)
+            {   
+                var adr = await main.App.shop.Admins(i)
+                if(web3.toBigNumber(adr) != 0 )
+                    ol.append('<li>' + adr + '</li>')
+            }
+        }
+        else{
+            div.append('<p>There are no administrators of the shop at the moment</p>')
+        }
+        div.show()
+    }
+
+    async makeNormal(e) {
+        e.preventDefault()
+        var adr = $('#userAddress').val()
+        //
+        // tlikrinimooo
+        //
+        main.setLoading(true)
+        window.alert('confirm the transaction to move user \n' + adr + '\nto Normal group')
+        await main.App.shop.MakeNormal(adr)
+        main.clearContent()
+        main.setLoading(false)
+    }
+
+    async makeAdmin(e) {
+        e.preventDefault()
+        var adr = $('#adminAddress').val()
+        //
+        // irgi tikrinimo reik
+        //
+        main.setLoading(true)
+        window.alert('confirm the transaction to make user\n' + adr + '\nAdmin')
+        await main.App.shop.MakeAdmin(adr)
+        main.clearContent()
+        await main.renderAdmins()
+        main.setLoading(false)
+        //window.location.reload()
+    }
+
+    async makeSeller(e) {
+        e.preventDefault()
+        var adr = $('#sellerAddress').val()
+        //
+        // tikrinimo reik
+        //
+        main.setLoading(true)
+        window.alert('confirm the transaction to make user\n' + adr + '\nSeller')
+        await main.App.shop.MakeSeller(adr)
+        main.clearContent()
+        await main.renderSellers()
+        main.setLoading(false)
+        //window.location.reload()
+    }
+
+    async renderAllGames() {
+        if ($('#myGames').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        main.clearContent()
+
+        $('#options').after('<div id="myGames"></div>')
+        
+        var div = $('#myGames')
+        div.hide()
+        div.css('text-align', 'center')
+        div.append('<center><h4>List of all shop\'s games</h4></center>')
+
+        //var createdGames = await main.App.shop.GetSellersGames(main.App.account)
+        var gameCount = await main.App.shop.gameCount()
+        if (gameCount > 0)
+        {
+            div.append('<table id="gamesTable" style="width:100%"></table>')
+            var table = $('#gamesTable')
+
+            table.css({'width': '80%','margin-left': '10%', 'margin-right': '10%'})
+
+            table.append('<tr></tr>')
+            table.find('tr').append('<td><b>ID</b></td>')
+            table.find('tr').append('<td><b>Name</b></td>')
+            table.find('tr').append('<td><b>Price</b></td>')
+            table.find('tr').append('<td><b>Sold copies</b></td>')
+            table.find('tr').append('<td><b>Status</b></td>')
+            table.find('tr').append('<td><b>Seller</b></td>')
+            //var gamesLength = await main.App.shop.GetGamesLength().then(function(result){return result.toNumber()})
+            var gamesLength = await main.App.shop.GetGamesLength()
+            for (var i = 0; i<gamesLength; i++)
+            {
+                var game = await main.App.shop.games(i)
+
+                if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
+                    continue
+
+                // get values
+                //var id = web3.toBigNumber(createdGames[i]).toNumber()
+                var name = game[3]
+                var price = game[5]
+                if (game[8])
+                    var status = "For sale"
+                else
+                    var status = "Not for sale"
+                var sold = game[7].toNumber()
+                var seller = game[2] 
+
+                // add values to table
+                table.append('<tr></tr>')
+                var row = table.find('tr').last()
+                row.append('<td>' + i + '</td>')
+                row.append('<td>' + name + '</td>')
+                row.append('<td>' + price + '</td>')
+                row.append('<td>' + sold + '</td>')
+                row.append('<td>' + status + '</td>')
+                row.append('<td>' + seller + '</td>')
+            }
+            $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
+
+        }
+        else{
+            div.append('<p>There are no games in the shop yet</p>')
+        }
+        div.show()
+    }
+
+    async renderUpdateGame() {
+        if ($('#edit').length !=0)
+        {
+            $('#edit').remove()
+            return
+        }
   
-  $(() => {
+        main.clearContent()
+  
+        $('#options').after('<div id="edit"></div>')
+        var div = $('#edit')
+        div.hide()
+        div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+
+        var gameCount = await main.App.shop.gameCount()
+        if (gameCount > 0)
+        {
+            div.append('<form id="games"></form>')
+            var form = $('#games')
+            form.append('<label for="gameList">Choose a game to edit: </label>')
+            form.append('<select id="gameList"></select>')
+            var select = $('#gameList')
+            //var gamesLen = await main.App.shop.GetGamesLength().then(function(result){return result.toNumber()})
+            var gamesLen = await main.App.shop.GetGamesLength()
+            for (var i = 0; i<gamesLen; i++)
+            {
+                var game = await main.App.shop.games(i) 
+                if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
+                    continue 
+                select.append('<option value="' + i/*id*/ + '">' + game[3]/*name*/ + '</option>')
+            }
+            form.append('&nbsp;&nbsp;<button type="submit">OK</button>')
+            form.submit(main.renderGameInfo)
+        }
+        else{
+            div.append('<p>You havent added any games yet</p>')
+        }
+        div.show()
+      }
+}
+
+let main = new Admin()
+
+$(() => {
     $(window).load(() => {
-      App.load()
+        main.render()
     })
-  })
-  
+})
