@@ -6,7 +6,7 @@ class Main extends Loader {
         await main.load() // load web3, contract, acc, etc.
 
         //main render
-        $('#acc').html(main.App.account)
+        $('#acc').html('<a href="/profile.html">' + main.App.account + '</a>')
 
         var gamecount = await main.App.shop.gameCount()
         gamecount = gamecount.toNumber()

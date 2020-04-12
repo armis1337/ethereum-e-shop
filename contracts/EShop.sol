@@ -1,5 +1,4 @@
 pragma solidity ^0.6;
-//pragma experimental ABIEncoderV2;
 
 contract EShop {
 
@@ -24,8 +23,8 @@ contract EShop {
         string name;
         Groups group;
         uint256 ownedGames; //  createdGames jei adminas arba selleris
-        mapping (uint256 => Game) myGames;
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
+        mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
     }
 
     enum Groups { Normal, Seller, Admin }
