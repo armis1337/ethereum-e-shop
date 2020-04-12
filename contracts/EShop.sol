@@ -15,6 +15,7 @@ contract EShop {
         uint256 releaseYear;
         uint256 soldCopies;
         bool state; //0(false) - not for sale; 1(true) - for sale
+        uint256 creationDate;
     }
 
     Game[] public games; // parduodami zaidimai
@@ -25,6 +26,7 @@ contract EShop {
         uint256 ownedGames; //  createdGames jei adminas arba selleris
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
         mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
+        mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
     }
 
     enum Groups { Normal, Seller, Admin }
@@ -80,7 +82,8 @@ contract EShop {
                 releaseYear: _year,
                 soldCopies: 0,
                 state: _state,
-                initialized: true
+                initialized: true,
+                creationDate: now
             }));
         gameCount ++;
         Users[msg.sender].ownedGames ++;
@@ -118,6 +121,7 @@ contract EShop {
         games[_id].seller.transfer(games[_id].price);
         //msg.sender.transfer(address(this).balance); //duodam pirkejui grazos, jei per daug pervede
         Users[msg.sender].myGames[_id] = games[_id];
+        Users[msg.sender].buyDates[_id] = now;
         Users[msg.sender].ownedGames ++;
         games[_id].soldCopies ++;
         totalSoldCopies ++;
@@ -212,14 +216,14 @@ contract EShop {
         Users[msg.sender].name = _new;
     }
 
-    function ChangeName (string memory _new, address _addr) // pakeisti bet kokio userio varda, bet tik adminui
+    /*function ChangeName (string memory _new, address _addr) // pakeisti bet kokio userio varda, bet tik adminui
         public
         onlyAdmin
     {
         Users[_addr].name = _new;
-    }
+    }*/
 
-    function GetSellersGames(address _adr)
+    function GetSellersGames(address _adr) // id + sukurimo data
         public
         view
         returns (bytes32[] memory)
@@ -228,7 +232,7 @@ contract EShop {
         uint256 k = 0;
         for (uint256 i = 0; i<games.length; i++)
         {
-            if (games[i].seller == _adr)
+            if (games[i].seller == _adr && games[i].initialized)
             {
                 arr[k] = bytes32(games[i].id); // zaidimo id
                 k++;
@@ -237,53 +241,25 @@ contract EShop {
         return arr;
     }
 
-    function GetUsersGames(address _adr)
+    function GetUsersGames(address _adr) // id + pirkimo data
         public
         view
-        returns (bytes32[] memory)
+        returns (bytes32[] memory, bytes32[] memory)
     {
         //require(Users[_adr].group == Groups.Seller, "user is not a seller");
         //uint256 len = Users[_adr].ownedGames;
         bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
         for (uint256 i = 0; i<games.length; i++)
         {
             if (UserHasGame(_adr, i))
             {
                 arr[k] = bytes32(i);
+                dates[k] = bytes32(Users[_adr].buyDates[i]);
                 k++;
             }
         }
-        return arr;
+        return (arr, dates);
     }
-
-    /*function Test ()
-        public
-        pure
-        returns (bytes32[10] memory)
-    {
-        bytes32[10] memory arr;
-        //string memory res;
-        for(uint256 i = 0; i<10; i++)
-        {
-           // res = string(i);
-            arr[i] = bytes32(i*2);
-        }
-        return arr;
-    }
-
-    event print(string msg1, string msg2);
-    event print2(address a, uint256 b);
-    event print3(string m, uint256 len);
-    event print4(uint256 ownedgames);
-    function Test2(address _adr)
-        public
-    {
-        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
-        emit print2(_adr, arr.length);
-        bytes32[] memory arr2 = new bytes32[](10);
-        emit print3('10 dydzio', arr2.length);
-        emit print4(Users[_adr].ownedGames);
-    }
-    */
 }

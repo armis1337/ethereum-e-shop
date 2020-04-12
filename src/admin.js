@@ -219,6 +219,7 @@ class Admin extends Main {
             table.find('tr').append('<td><b>Price</b></td>')
             table.find('tr').append('<td><b>Sold copies</b></td>')
             table.find('tr').append('<td><b>Status</b></td>')
+            table.find('tr').append('<td><b>Created</b></td>')
             table.find('tr').append('<td><b>Seller</b></td>')
             //var gamesLength = await main.App.shop.GetGamesLength().then(function(result){return result.toNumber()})
             var gamesLength = await main.App.shop.GetGamesLength()
@@ -238,7 +239,26 @@ class Admin extends Main {
                 else
                     var status = "Not for sale"
                 var sold = game[7].toNumber()
-                var seller = game[2] 
+                var seller = game[2]
+                
+                var date = new Date(game[9].toNumber() * 1000)
+                var year = date.getFullYear()
+                var month = date.getMonth() + 1
+                if(month < 10)
+                    month = '0' + month
+                var day = date.getDate()
+                if(day < 10)
+                    day = '0' + day
+                var hour = date.getHours()
+                if(hour < 10)
+                    hour = '0' + hour
+                var min = date.getMinutes()
+                if(min < 10)
+                    min = '0' + min
+                var sec = date.getSeconds()
+                if(sec < 10)
+                    sec = '0' + sec
+                var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
 
                 // add values to table
                 table.append('<tr></tr>')
@@ -248,6 +268,7 @@ class Admin extends Main {
                 row.append('<td>' + price + '</td>')
                 row.append('<td>' + sold + '</td>')
                 row.append('<td>' + status + '</td>')
+                row.append('<td>' + date + '</td>')
                 row.append('<td>' + seller + '</td>')
             }
             $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})

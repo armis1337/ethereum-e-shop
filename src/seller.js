@@ -90,6 +90,7 @@ export class Main extends Loader {
         table.find('tr').append('<td><b>Name</b></td>')
         table.find('tr').append('<td><b>Price</b></td>')
         table.find('tr').append('<td><b>Sold copies</b></td>')
+        table.find('tr').append('<td><b>Created</b></td>')
         table.find('tr').append('<td><b>Status</b></td>')
 
         for (var i = 0; i<createdGames.length; i++)
@@ -109,6 +110,25 @@ export class Main extends Loader {
             var status = "Not for sale"
           var sold = game[7].toNumber()
 
+          var date = new Date(game[9].toNumber() * 1000)
+          var year = date.getFullYear()
+          var month = date.getMonth() + 1
+          if(month < 10)
+            month = '0' + month
+          var day = date.getDate()
+          if(day < 10)
+            day = '0' + day
+          var hour = date.getHours()
+          if(hour < 10)
+            hour = '0' + hour
+          var min = date.getMinutes()
+          if(min < 10)
+            min = '0' + min
+          var sec = date.getSeconds()
+          if(sec < 10)
+            sec = '0' + sec
+          var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
+
           // add values to table
           table.append('<tr></tr>')
           var row = table.find('tr').last()
@@ -116,6 +136,7 @@ export class Main extends Loader {
           row.append('<td>' + name + '</td>')
           row.append('<td>' + price + '</td>')
           row.append('<td>' + sold + '</td>')
+          row.append('<td>' + date + '</td>')
           row.append('<td>' + status + '</td>')
         }
         $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
