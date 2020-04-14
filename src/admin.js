@@ -24,13 +24,14 @@ class Admin extends Main {
         options.find('#3').unbind()
         options.find('#3').on('click', main.renderUpdateGame)
         options.append('<br>')
-        options.append('<button type="button" id="4">Manage admin group</button>')
-        options.append('<button type="button" id="5">Manage sellers group</button>')
-        options.append('<button type="button" id="6">Remove user\'s rights</button>')
+        options.append('<button type="button" id="4" class="option">Manage admin group</button>')
+        options.append('<button type="button" id="5" class="option">Manage sellers group</button>')
+        options.append('<button type="button" id="6" class="option">Remove user\'s rights</button>')
         options.find('#4').on('click', main.renderAdmins)
         options.find('#5').on('click', main.renderSellers)
         options.find('#6').on('click', main.renderRemoveGroups)
-        $('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
+        $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
+        //$('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
     async renderRemoveGroups () {

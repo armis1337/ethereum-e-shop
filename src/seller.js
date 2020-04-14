@@ -18,13 +18,14 @@ export class Main extends Loader {
       $('#content').append('<div id="options"></div>')
       var options = $('#options')
       options.css({'text-align':'center'})
-      options.append('<button type="button" id="1">Create game</button>')
+      options.append('<button type="button" id="1" class="option">Create game</button>')
       $('#1').on('click', main.renderCreateGame)
-      options.append('<button type="button" id="2">Your games</button>')
+      options.append('<button type="button" id="2" class="option">Your games</button>')
       $('#2').on('click', main.renderMyGames)
-      options.append('<button type="button" id="3">Edit game</button>')
+      options.append('<button type="button" id="3" class="option">Edit game</button>')
       $('#3').on('click', main.renderUpdateGame)
-      $('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
+      //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
+      $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
     async renderCreateGame() { // new +
@@ -279,7 +280,6 @@ export class Main extends Loader {
     }
 }
 
-//export default Main
 let main = new Main()
 
 $(() => {
