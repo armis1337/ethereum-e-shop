@@ -25,6 +25,13 @@ export class Main extends Loader {
       options.append('<button type="button" id="3" class="option">Edit game</button>')
       $('#3').on('click', main.renderUpdateGame)
       //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
+      if (main.App.userdata[4] != 0)
+      {
+        options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt</b></button>')
+        $('#debtbtn').on('click', main.renderDebtReturnForm)
+        $('#1, #3').prop('disabled', true)
+      }
+
       $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
@@ -59,6 +66,41 @@ export class Main extends Loader {
       form.append('<button type="button" id="cancelCreate">Cancel</button>')
       form.submit(main.createGame)
       form.find('#cancelCreate').on('click', main.clearContent)
+    }
+
+    async renderDebtReturnForm() {
+      if ($('#debt').length != 0)
+      {
+        $('#debt').remove()
+        return
+      }
+
+      main.clearContent()
+
+      $('#options').append('<div id="debt"></div>')
+      var div = $('#debt')
+      div.hide()
+      div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+
+      div.append('<form id="returndebt"></form>')
+      var form = $('#returndebt')
+      form.append('<p>Your total debt is: ' + main.App.userdata[4] + '</p>')
+      form.append('<label for="amountToReturn">Amount to return: </label>')
+      form.append('<input type="number" id="amountToReturn" min="1" required>')
+      form.append('<button type="submit">OK</button>')
+      form.submit(main.returnDebt)
+
+      div.show()
+    }
+
+    async returnDebt(e) {
+      e.preventDefault()
+      main.setLoading(true)
+      var amount = $('#amountToReturn').val()
+      window.alert('confirm the transaction to return debt')
+      await main.App.shop.ReturnDebt({from: main.App.account, value: amount})
+      main.clearContent()
+      window.location.reload()
     }
 
     async renderMyGames() { // new +
@@ -96,13 +138,13 @@ export class Main extends Loader {
 
         for (var i = 0; i<createdGames.length; i++)
         {
-          var game = await main.App.shop.games(web3.toBigNumber(createdGames[i]).toNumber())
+          var id = web3.toBigNumber(createdGames[i]).toNumber()
+          var game = await main.App.shop.games(id)
 
           if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
             continue
 
           // get values
-          var id = web3.toBigNumber(createdGames[i]).toNumber()
           var name = game[3]
           var price = game[5]
           if (game[8])
@@ -134,7 +176,7 @@ export class Main extends Loader {
           table.append('<tr></tr>')
           var row = table.find('tr').last()
           row.append('<td>' + id + '</td>')
-          row.append('<td>' + name + '</td>')
+          row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
           row.append('<td>' + price + '</td>')
           row.append('<td>' + sold + '</td>')
           row.append('<td>' + date + '</td>')

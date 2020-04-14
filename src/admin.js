@@ -265,7 +265,7 @@ class Admin extends Main {
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
-                row.append('<td>' + name + '</td>')
+                row.append('<td><a href="game.html?id=' + i +'">' + name + '</a></td>')
                 row.append('<td>' + price + '</td>')
                 row.append('<td>' + sold + '</td>')
                 row.append('<td>' + status + '</td>')
@@ -322,10 +322,12 @@ class Admin extends Main {
       }
 }
 
-let main = new Admin()
+//let main = new Admin()
 
 $(() => {
     $(window).load(() => {
-        main.render()
+        window.main = new Admin()
+        window.main.render()
+        //main.render()
     })
 })

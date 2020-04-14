@@ -4,6 +4,7 @@ contract EShop {
 
     uint256 public gameCount; // skirtingi esantys zaidimai shope
     uint256 public totalSoldCopies; // parduotu kopiju skaicius
+    address payable wallet;
 
     struct Game {
         bool initialized;
@@ -25,8 +26,10 @@ contract EShop {
         Groups group;
         uint256 ownedGames; //  createdGames jei adminas arba selleris
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
+        uint256 debt;
         mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
         mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
+        //mapping (uint256 => uint256) buyPrices;
     }
 
     enum Groups { Normal, Seller, Admin }
@@ -35,8 +38,21 @@ contract EShop {
     address[] public Admins;
     address[] public Sellers;
 
+
+    struct RefundReq {
+        uint256 gameId;
+        address payable owner;
+        string reason;
+        RequestState state;
+    }
+
+    enum RequestState { Waiting, Denied, Refunded }
+
+    RefundReq[] public refunds;
+
     constructor() public {
-        Users[msg.sender].name = "Armis1337";
+        wallet = msg.sender;
+        Users[msg.sender].name = "Admin";
         Users[msg.sender].group = Groups.Admin;
         Admins.push(msg.sender);
         Users[msg.sender].groupid = Admins.length;
@@ -73,12 +89,11 @@ contract EShop {
     {
         games.push(Game(
             {
-                //id: gameCount,
                 id: games.length,
                 seller: msg.sender,
                 name: _name,
                 short_desc: _sh_desc,
-                price: _price,
+                price: _price + _price * 1/5,
                 releaseYear: _year,
                 soldCopies: 0,
                 state: _state,
@@ -109,6 +124,24 @@ contract EShop {
         gameCount--;
     }
 
+    function AddDebt(address _adr, uint256 _amount)
+        public // reiktu gal i internal paskui pakeist
+        onlyAdmin
+    {
+        require(Users[_adr].group != Groups.Normal, "");
+        require(_amount > 0, "");
+        Users[_adr].debt += _amount;
+    }
+
+    function ReturnDebt()
+        public
+        payable
+    {
+        require(Users[msg.sender].debt > 0, "");
+        wallet.transfer(msg.value);
+        Users[msg.sender].debt -= msg.value;
+    }
+
     function BuyGame (uint256 _id)
         public
         payable
@@ -118,8 +151,24 @@ contract EShop {
         require(msg.value >= games[_id].price, "not enough ether");
         require(Users[msg.sender].myGames[_id].initialized == false, "you own this game");
         require(msg.sender != games[_id].seller, "You cant buy your own game");
-        games[_id].seller.transfer(games[_id].price);
-        //msg.sender.transfer(address(this).balance); //duodam pirkejui grazos, jei per daug pervede
+        wallet.transfer(games[_id].price / 6);//20% shopui
+        if (Users[games[_id].seller].debt > 0) // jei skolingas
+        {
+            if(Users[games[_id].seller].debt > games[_id].price - games[_id].price / 6)// jei skoloj daugiau nei kainuoja zaidimas
+            {
+                wallet.transfer(games[_id].price - games[_id].price / 6);
+                Users[games[_id].seller].debt -= (games[_id].price - games[_id].price / 6);
+            }
+            else // jei skolingas maziau, nei kainuoja geimas
+            {
+                wallet.transfer(Users[games[_id].seller].debt);//pervedam skola shopui
+                games[_id].seller.transfer(games[_id].price - games[_id].price / 6 - Users[games[_id].seller].debt); // likuti selleriui
+                Users[games[_id].seller].debt = 0;
+            }
+        }
+        else
+            games[_id].seller.transfer(games[_id].price - games[_id].price / 6);
+        
         Users[msg.sender].myGames[_id] = games[_id];
         Users[msg.sender].buyDates[_id] = now;
         Users[msg.sender].ownedGames ++;
@@ -160,8 +209,7 @@ contract EShop {
         public
         onlyAdmin
     {
-        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
-        //require(Users[_adr].ownedGames == 0, "User cannot have any games to change his group");
+        require(_adr != wallet, "User is main admin");
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
                 Users[_adr].group == Groups.Admin, "user cannot become seller");
 
@@ -171,7 +219,6 @@ contract EShop {
         Users[_adr].group = Groups.Seller;
         Sellers.push(_adr);
         Users[_adr].groupid = Sellers.length;
-        //sellersCount++;
     }
 
     function MakeAdmin (address _adr)
@@ -180,7 +227,6 @@ contract EShop {
     {
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
                 Users[_adr].group == Groups.Seller, "user cannot become admin");
-        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
         if (Users[_adr].group == Groups.Seller)
             delete Sellers[Users[_adr].groupid - 1];
 
@@ -193,6 +239,7 @@ contract EShop {
         public
         onlyAdmin
     {
+        require(_adr != wallet, "User is main admin");
         require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
         require(Users[_adr].ownedGames == 0, "User cannot have created games");
         if (Users[_adr].group == Groups.Admin)
@@ -215,13 +262,6 @@ contract EShop {
         //require reiktu pridet, kad belekokio sudo neprivestu, bet kol kas bus ok
         Users[msg.sender].name = _new;
     }
-
-    /*function ChangeName (string memory _new, address _addr) // pakeisti bet kokio userio varda, bet tik adminui
-        public
-        onlyAdmin
-    {
-        Users[_addr].name = _new;
-    }*/
 
     function GetSellersGames(address _adr) // id + sukurimo data
         public
