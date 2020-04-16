@@ -29,7 +29,7 @@ contract EShop {
         uint256 debt;
         mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
         mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
-        //mapping (uint256 => uint256) buyPrices;
+        mapping (uint256 => bool) myRequests; // zaidimo id -> ar jau requestino refundo
     }
 
     enum Groups { Normal, Seller, Admin }
@@ -42,13 +42,15 @@ contract EShop {
     struct RefundReq {
         uint256 gameId;
         address payable owner;
+        uint256 price;
         string reason;
         RequestState state;
     }
 
     enum RequestState { Waiting, Denied, Refunded }
 
-    RefundReq[] public refunds;
+    RefundReq[] public refunds;// all requests
+    uint256 public waitingRefunds;
 
     constructor() public {
         wallet = msg.sender;
@@ -168,7 +170,7 @@ contract EShop {
         }
         else
             games[_id].seller.transfer(games[_id].price - games[_id].price / 6);
-        
+
         Users[msg.sender].myGames[_id] = games[_id];
         Users[msg.sender].buyDates[_id] = now;
         Users[msg.sender].ownedGames ++;
@@ -286,8 +288,7 @@ contract EShop {
         view
         returns (bytes32[] memory, bytes32[] memory)
     {
-        //require(Users[_adr].group == Groups.Seller, "user is not a seller");
-        //uint256 len = Users[_adr].ownedGames;
+        //require(Users[_adr].ownedGames > 0, "user doesnt have any games";)
         bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
         bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
@@ -301,5 +302,45 @@ contract EShop {
             }
         }
         return (arr, dates);
+    }
+
+    function GetPriceBought(uint256 _id)
+        public
+        view
+        returns (uint256 price)
+    {
+        return Users[msg.sender].myGames[_id].price;
+    }
+
+    function AskRefund(uint256 _id, string memory _reason)
+        public
+    {
+        require(Users[msg.sender].myGames[_id].initialized, "you dont own this game");
+        require(!HasAskedRefund(msg.sender, _id), "You already requested refund for this game");
+        refunds.push(RefundReq({
+            gameId: _id,
+            owner: msg.sender,
+            reason: _reason,
+            price: GetPriceBought(_id),
+            state: RequestState.Waiting
+        }));
+        Users[msg.sender].myRequests[_id] = true;
+        waitingRefunds ++;
+    }
+
+    function HasAskedRefund (address _adr, uint256 _id)
+        public
+        view
+        returns (bool)
+    {
+        return Users[_adr].myRequests[_id];
+    }
+
+    function GetRefundsLength ()
+        public
+        view
+        returns (uint256)
+    {
+        return refunds.length;
     }
 }

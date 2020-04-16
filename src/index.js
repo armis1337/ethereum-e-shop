@@ -40,10 +40,11 @@ class Main extends Loader {
     }
 };
 
-let main = new Main()
+//let main = new Main()
 
 $(() => {
     $(window).load(() => {
-        main.render()
+        window.main = new Main()
+        window.main.render()
     })
 })

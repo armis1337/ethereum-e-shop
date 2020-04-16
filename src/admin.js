@@ -15,7 +15,7 @@ class Admin extends Main {
         main.setLoading(false)
     }
 
-    async renderOptions() {
+    async renderOptions () {
         super.renderOptions()
         var options = $('#options')
         options.find('#2').html('All games')
@@ -27,11 +27,71 @@ class Admin extends Main {
         options.append('<button type="button" id="4" class="option">Manage admin group</button>')
         options.append('<button type="button" id="5" class="option">Manage sellers group</button>')
         options.append('<button type="button" id="6" class="option">Remove user\'s rights</button>')
+        options.append('<br>')
+        options.append('<button type="button" id="7" class="option">View refund requests</button>')
         options.find('#4').on('click', main.renderAdmins)
         options.find('#5').on('click', main.renderSellers)
         options.find('#6').on('click', main.renderRemoveGroups)
+        options.find('#7').on('click', main.renderRefundRequests)
         $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
         //$('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
+    }
+
+    async renderRefundRequests () {
+        if($('#refunds').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        main.clearContent()
+
+        $('#options').after('<div id="refunds"></div>')
+        var div = $('#refunds')
+        div.hide()
+        div.css({'padding':'10px', 'text-align':'center', 'width':'90%', 'margin-top':'10px', 'margin-left':'5%', 'margin-right':'5%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+
+        var reqCount = await main.App.shop.waitingRefunds()
+
+        if (reqCount > 0)
+        {
+            div.append('<table id="requestsTable" style="width:100%"></table>')
+            var table = $('#requestsTable')
+
+            table.css({'width': '90%','margin-left': '5%', 'margin-right': '5%'})
+
+            table.append('<tr></tr>')
+            table.find('tr').append('<td><b>ID</b></td>')
+            table.find('tr').append('<td><b>Request by</b></td>')
+            table.find('tr').append('<td><b>Seller</b></td>')
+            table.find('tr').append('<td><b>Price bought</b></td>')
+            table.find('tr').append('<td><b>Reason</b></td>')
+            table.find('tr').append('<td><b>Action</b></td>')
+            for (var i = 0; i < await main.App.shop.GetRefundsLength(); i++)
+            {
+                var request = await main.App.shop.refunds(i)
+                //console.log(request[0].toNumber())
+                var game = await main.App.shop.games(request[0].toNumber())
+               //var price = 
+                //console.log(price.toNumber())
+
+                table.append('<tr></tr>')
+                var row = table.find('tr').last()
+                row.append('<td>' + i + '</td>')
+                row.append('<td>' + request[1] + '</td>')
+                row.append('<td>' + game[2] + '</td>')
+                row.append('<td>' + request[2] + '</td>')
+                row.append('<td>' + request[3] + '</td>')
+                row.append('<td><button type="button" id="acc'+i+'">Accept</button>&nbsp;<button type="button" id="cancel' + i + '">Deny</button></td>')
+
+            }
+
+            $('#requestsTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
+        }
+        else{
+            div.append('<p>No refund requests at the time</p>')
+        }
+
+        div.show()
     }
 
     async renderRemoveGroups () {
