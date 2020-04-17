@@ -27,6 +27,7 @@ contract EShop {
         uint256 ownedGames; //  createdGames jei adminas arba selleris
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
         uint256 debt;
+        address payable debtTo;
         mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
         mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
         mapping (uint256 => bool) myRequests; // zaidimo id -> ar jau requestino refundo
@@ -133,6 +134,7 @@ contract EShop {
         require(Users[_adr].group != Groups.Normal, "");
         require(_amount > 0, "");
         Users[_adr].debt += _amount;
+        Users[_adr].debtTo = msg.sender; //
     }
 
     function ReturnDebt()
@@ -140,7 +142,8 @@ contract EShop {
         payable
     {
         require(Users[msg.sender].debt > 0, "");
-        wallet.transfer(msg.value);
+        //wallet.transfer(msg.value);
+        Users[msg.sender].debtTo.transfer(msg.value); //
         Users[msg.sender].debt -= msg.value;
     }
 
@@ -342,5 +345,29 @@ contract EShop {
         returns (uint256)
     {
         return refunds.length;
+    }
+
+    function ConfirmRefund (uint256 _id)
+        public
+        payable
+        onlyAdmin
+    {
+        require(refunds[_id].state == RequestState.Waiting, "");
+        AddDebt(games[refunds[_id].gameId].seller, refunds[_id].price);
+        refunds[_id].owner.transfer(refunds[_id].price);
+        delete Users[refunds[_id].owner].myGames[refunds[_id].gameId];
+        delete Users[refunds[_id].owner].buyDates[refunds[_id].gameId];
+        Users[refunds[_id].owner].ownedGames--;
+        refunds[_id].state = RequestState.Refunded;
+        waitingRefunds--;
+    }
+
+    function DenyRefund (uint256 _id)
+        public
+        onlyAdmin
+    {
+        require(refunds[_id].state == RequestState.Waiting, "");
+        refunds[_id].state = RequestState.Denied;
+        waitingRefunds--;
     }
 }

@@ -52,7 +52,7 @@ class Admin extends Main {
 
         var reqCount = await main.App.shop.waitingRefunds()
 
-        if (reqCount > 0)
+        if (1 > 0)
         {
             div.append('<table id="requestsTable" style="width:100%"></table>')
             var table = $('#requestsTable')
@@ -65,6 +65,7 @@ class Admin extends Main {
             table.find('tr').append('<td><b>Seller</b></td>')
             table.find('tr').append('<td><b>Price bought</b></td>')
             table.find('tr').append('<td><b>Reason</b></td>')
+            table.find('tr').append('<td><b>State</b></td>')
             table.find('tr').append('<td><b>Action</b></td>')
             for (var i = 0; i < await main.App.shop.GetRefundsLength(); i++)
             {
@@ -81,17 +82,50 @@ class Admin extends Main {
                 row.append('<td>' + game[2] + '</td>')
                 row.append('<td>' + request[2] + '</td>')
                 row.append('<td>' + request[3] + '</td>')
-                row.append('<td><button type="button" id="acc'+i+'">Accept</button>&nbsp;<button type="button" id="cancel' + i + '">Deny</button></td>')
+                if (request[4] == 0)
+                {
+                    row.append('<td>Waiting</td>')
+                    row.append('<td><button type="button" id="acc'+i+'">Accept</button>&nbsp;<button type="button" id="deny' + i + '">Deny</button></td>')
+                    
+                    $('#acc' + i).on('click', {id: i, price: request[2]}, main.confirmRequest)
 
+                    $('#deny' + i).on('click', {id: i}, main.denyRequest)
+                }
+                else if(request[4] == 1)
+                {
+                    row.append('<td>Denied</td>')
+                    row.append('<td> - </td>')
+                }
+                else if(request[4] == 2)
+                {
+                    row.append('<td>Refunded</td>')
+                    row.append('<td> - </td>')
+                }
             }
 
             $('#requestsTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
+
+            div.append('<p style="color:red">sugalvot ka daryt su refundais kai istrina zaidima ir siaip klaidu yra</p>')
         }
         else{
             div.append('<p>No refund requests at the time</p>')
         }
 
         div.show()
+    }
+
+    async confirmRequest (e) {
+        main.setLoading(true)
+        window.alert('confirm the transaction to accept refund request')
+        await main.App.shop.ConfirmRefund(e.data.id, {from: main.App.account, value: e.data.price})
+        window.location.reload()
+    }
+
+    async denyRequest (e) {
+        main.setLoading(true)
+        window.alert('confirm the transaction to deny request')
+        await main.App.shop.DenyRefund(e.data.id)
+        window.location.reload()
     }
 
     async renderRemoveGroups () {
