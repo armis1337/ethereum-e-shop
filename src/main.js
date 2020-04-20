@@ -9,8 +9,7 @@ var url = window.location.pathname
 switch (url) {
     case '/index.html':
     case '/':
-        window.main = new index()
-        var main = window.main
+        var main = new index()
         break
     case '/admin.html':
         var main = new admin()
@@ -35,6 +34,6 @@ switch (url) {
 
 $(() => {
     $(window).load(() => {
-      main.render()
+        main.render()
     })
 })

@@ -28,6 +28,9 @@ contract EShop {
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
         uint256 debt;
         address payable debtTo;
+        string description;
+        uint256 year;
+        string email;
         mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
         mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
         mapping (uint256 => bool) myRequests; // zaidimo id -> ar jau requestino refundo
@@ -267,6 +270,35 @@ contract EShop {
     {
         //require reiktu pridet, kad belekokio sudo neprivestu, bet kol kas bus ok
         Users[msg.sender].name = _new;
+    }
+
+    function ChangeDescription (string memory _desc)
+        public
+    {
+        //tikrininmo cj
+        Users[msg.sender].description = _desc;
+    }
+
+    function ChangeYear (uint256 _year)
+        public
+    {
+        require(_year >= 1 && _year <= 9999, "");
+        Users[msg.sender].year = _year;
+    }
+
+    function ChangeMail (string memory _mail)
+        public
+    {
+        Users[msg.sender].email = _mail;
+    }
+
+    function ChangeInfo (string memory _name, string memory _desc, uint256 _year, string memory _email)
+        public
+    {
+        Users[msg.sender].name = _name;
+        Users[msg.sender].description = _desc;
+        Users[msg.sender].year = _year;
+        Users[msg.sender].email = _email;
     }
 
     function GetSellersGames(address _adr) // id + sukurimo data
