@@ -21,7 +21,7 @@ swx all
   * [x] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 
   * [x] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
   * [ ] Pardaveju profilio puslapis - Aprasymo redagavimas, nuotraukos keitimas (?)
-  * [ ] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
+  * [x] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
 \  
 * iteracija 4
   * [ ] Zaidimo info puslapis paprastiems vartotojams - Galimybe vertinti zaidima (x/10), palikti atsiliepima
@@ -49,4 +49,4 @@ restart ganache
 $ ./launch.sh
 logout out of metamask
 login with new mnemonic
-```
+```0
