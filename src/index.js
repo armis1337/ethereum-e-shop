@@ -1,5 +1,5 @@
 import Loader from './loader.js'
-class Main extends Loader {
+export class Main extends Loader {
     async render () {
         main.setLoading(true)
         
@@ -41,9 +41,3 @@ class Main extends Loader {
 };
 
 let main = new Main()
-
-$(() => {
-    $(window).load(() => {
-        main.render()
-    })
-})

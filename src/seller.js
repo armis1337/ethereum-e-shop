@@ -1,5 +1,10 @@
 import Loader from './loader.js'
 export class Main extends Loader {
+  constructor (app = null) {
+    super()
+    if (app != null)
+      this.App = app
+  }
   async render() { // new
       main.setLoading(true)
       await main.load()
@@ -11,20 +16,31 @@ export class Main extends Loader {
       main.setLoading(false)
     }
 
-    async renderOptions() { // new
+    async renderOptions(app = null) { // new
       if ($('#options').length != 0)
         return
+
+      if (app != null)
+        main.App = app
 
       $('#content').append('<div id="options"></div>')
       var options = $('#options')
       options.css({'text-align':'center'})
-      options.append('<button type="button" id="1">Create game</button>')
+      options.append('<button type="button" id="1" class="option">Create game</button>')
       $('#1').on('click', main.renderCreateGame)
-      options.append('<button type="button" id="2">Your games</button>')
+      options.append('<button type="button" id="2" class="option">Your games</button>')
       $('#2').on('click', main.renderMyGames)
-      options.append('<button type="button" id="3">Edit game</button>')
+      options.append('<button type="button" id="3" class="option">Edit game</button>')
       $('#3').on('click', main.renderUpdateGame)
-      $('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
+      //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
+      if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
+      {
+        options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt to the shop</b></button>')
+        $('#debtbtn').on('click', main.renderDebtReturnForm)
+        $('#1, #3').prop('disabled', true)
+      }
+
+      $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
     async renderCreateGame() { // new +
@@ -60,6 +76,41 @@ export class Main extends Loader {
       form.find('#cancelCreate').on('click', main.clearContent)
     }
 
+    async renderDebtReturnForm() {
+      if ($('#debt').length != 0)
+      {
+        $('#debt').remove()
+        return
+      }
+
+      main.clearContent()
+
+      $('#options').append('<div id="debt"></div>')
+      var div = $('#debt')
+      div.hide()
+      div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+
+      div.append('<form id="returndebt"></form>')
+      var form = $('#returndebt')
+      form.append('<p>Your total debt is: ' + main.App.userdata[4] + '</p>')
+      form.append('<label for="amountToReturn">Amount to return: </label>')
+      form.append('<input type="number" id="amountToReturn" min="1" required>')
+      form.append('<button type="submit">OK</button>')
+      form.submit(main.returnDebt)
+
+      div.show()
+    }
+
+    async returnDebt(e) {
+      e.preventDefault()
+      main.setLoading(true)
+      var amount = $('#amountToReturn').val()
+      window.alert('confirm the transaction to return debt')
+      await main.App.shop.ReturnDebt({from: main.App.account, value: amount})
+      main.clearContent()
+      window.location.reload()
+    }
+
     async renderMyGames() { // new +
       if ($('#myGames').length != 0)
       {
@@ -90,17 +141,18 @@ export class Main extends Loader {
         table.find('tr').append('<td><b>Name</b></td>')
         table.find('tr').append('<td><b>Price</b></td>')
         table.find('tr').append('<td><b>Sold copies</b></td>')
+        table.find('tr').append('<td><b>Created</b></td>')
         table.find('tr').append('<td><b>Status</b></td>')
 
         for (var i = 0; i<createdGames.length; i++)
         {
-          var game = await main.App.shop.games(web3.toBigNumber(createdGames[i]).toNumber())
+          var id = web3.toBigNumber(createdGames[i]).toNumber()
+          var game = await main.App.shop.games(id)
 
           if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
             continue
 
           // get values
-          var id = web3.toBigNumber(createdGames[i]).toNumber()
           var name = game[3]
           var price = game[5]
           if (game[8])
@@ -109,13 +161,33 @@ export class Main extends Loader {
             var status = "Not for sale"
           var sold = game[7].toNumber()
 
+          var date = new Date(game[9].toNumber() * 1000)
+          var year = date.getFullYear()
+          var month = date.getMonth() + 1
+          if(month < 10)
+            month = '0' + month
+          var day = date.getDate()
+          if(day < 10)
+            day = '0' + day
+          var hour = date.getHours()
+          if(hour < 10)
+            hour = '0' + hour
+          var min = date.getMinutes()
+          if(min < 10)
+            min = '0' + min
+          var sec = date.getSeconds()
+          if(sec < 10)
+            sec = '0' + sec
+          var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
+
           // add values to table
           table.append('<tr></tr>')
           var row = table.find('tr').last()
           row.append('<td>' + id + '</td>')
-          row.append('<td>' + name + '</td>')
+          row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
           row.append('<td>' + price + '</td>')
           row.append('<td>' + sold + '</td>')
+          row.append('<td>' + date + '</td>')
           row.append('<td>' + status + '</td>')
         }
         $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
@@ -258,11 +330,4 @@ export class Main extends Loader {
     }
 }
 
-//export default Main
 let main = new Main()
-
-$(() => {
-  $(window).load(() => {
-    main.render()
-  })
-})

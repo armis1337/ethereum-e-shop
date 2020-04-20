@@ -1,10 +1,10 @@
 pragma solidity ^0.6;
-//pragma experimental ABIEncoderV2;
 
 contract EShop {
 
     uint256 public gameCount; // skirtingi esantys zaidimai shope
     uint256 public totalSoldCopies; // parduotu kopiju skaicius
+    address payable wallet;
 
     struct Game {
         bool initialized;
@@ -16,6 +16,7 @@ contract EShop {
         uint256 releaseYear;
         uint256 soldCopies;
         bool state; //0(false) - not for sale; 1(true) - for sale
+        uint256 creationDate;
     }
 
     Game[] public games; // parduodami zaidimai
@@ -24,8 +25,15 @@ contract EShop {
         string name;
         Groups group;
         uint256 ownedGames; //  createdGames jei adminas arba selleris
-        mapping (uint256 => Game) myGames;
         uint256 groupid; // =0 jei normal, >0 jei seller arba admin
+        uint256 debt;
+        address payable debtTo;
+        string description;
+        uint256 year;
+        string email;
+        mapping (uint256 => Game) myGames; // zaidimo id -> zaido obj
+        mapping (uint256 => uint256) buyDates; // zaido id -> pirkimo data
+        mapping (uint256 => bool) myRequests; // zaidimo id -> ar jau requestino refundo
     }
 
     enum Groups { Normal, Seller, Admin }
@@ -34,8 +42,23 @@ contract EShop {
     address[] public Admins;
     address[] public Sellers;
 
+
+    struct RefundReq {
+        uint256 gameId;
+        address payable owner;
+        uint256 price;
+        string reason;
+        RequestState state;
+    }
+
+    enum RequestState { Waiting, Denied, Refunded }
+
+    RefundReq[] public refunds;// all requests
+    uint256 public waitingRefunds;
+
     constructor() public {
-        Users[msg.sender].name = "Armis1337";
+        wallet = msg.sender;
+        Users[msg.sender].name = "Admin";
         Users[msg.sender].group = Groups.Admin;
         Admins.push(msg.sender);
         Users[msg.sender].groupid = Admins.length;
@@ -72,16 +95,16 @@ contract EShop {
     {
         games.push(Game(
             {
-                //id: gameCount,
                 id: games.length,
                 seller: msg.sender,
                 name: _name,
                 short_desc: _sh_desc,
-                price: _price,
+                price: _price + _price * 1/5,
                 releaseYear: _year,
                 soldCopies: 0,
                 state: _state,
-                initialized: true
+                initialized: true,
+                creationDate: now
             }));
         gameCount ++;
         Users[msg.sender].ownedGames ++;
@@ -103,8 +126,29 @@ contract EShop {
         onlyOwner(_id)
     {
         Users[games[_id].seller].ownedGames--;
-        delete games[_id];
+        //delete games[_id]; // pakeista i \i/
+        games[_id].initialized = false;
         gameCount--;
+    }
+
+    function AddDebt(address _adr, uint256 _amount)
+        public // reiktu gal i internal paskui pakeist
+        onlyAdmin
+    {
+        require(Users[_adr].group != Groups.Normal, "");
+        require(_amount > 0, "");
+        Users[_adr].debt += _amount;
+        Users[_adr].debtTo = msg.sender; //
+    }
+
+    function ReturnDebt()
+        public
+        payable
+    {
+        require(Users[msg.sender].debt > 0, "");
+        //wallet.transfer(msg.value);
+        Users[msg.sender].debtTo.transfer(msg.value); //
+        Users[msg.sender].debt -= msg.value;
     }
 
     function BuyGame (uint256 _id)
@@ -116,9 +160,26 @@ contract EShop {
         require(msg.value >= games[_id].price, "not enough ether");
         require(Users[msg.sender].myGames[_id].initialized == false, "you own this game");
         require(msg.sender != games[_id].seller, "You cant buy your own game");
-        games[_id].seller.transfer(games[_id].price);
-        //msg.sender.transfer(address(this).balance); //duodam pirkejui grazos, jei per daug pervede
+        wallet.transfer(games[_id].price / 6);//20% shopui
+        if (Users[games[_id].seller].debt > 0) // jei skolingas
+        {
+            if(Users[games[_id].seller].debt > games[_id].price - games[_id].price / 6)// jei skoloj daugiau nei kainuoja zaidimas
+            {
+                wallet.transfer(games[_id].price - games[_id].price / 6);
+                Users[games[_id].seller].debt -= (games[_id].price - games[_id].price / 6);
+            }
+            else // jei skolingas maziau, nei kainuoja geimas
+            {
+                wallet.transfer(Users[games[_id].seller].debt);//pervedam skola shopui
+                games[_id].seller.transfer(games[_id].price - games[_id].price / 6 - Users[games[_id].seller].debt); // likuti selleriui
+                Users[games[_id].seller].debt = 0;
+            }
+        }
+        else
+            games[_id].seller.transfer(games[_id].price - games[_id].price / 6);
+
         Users[msg.sender].myGames[_id] = games[_id];
+        Users[msg.sender].buyDates[_id] = now;
         Users[msg.sender].ownedGames ++;
         games[_id].soldCopies ++;
         totalSoldCopies ++;
@@ -157,8 +218,7 @@ contract EShop {
         public
         onlyAdmin
     {
-        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Seller");
-        //require(Users[_adr].ownedGames == 0, "User cannot have any games to change his group");
+        require(_adr != wallet, "User is main admin");
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
                 Users[_adr].group == Groups.Admin, "user cannot become seller");
 
@@ -168,7 +228,6 @@ contract EShop {
         Users[_adr].group = Groups.Seller;
         Sellers.push(_adr);
         Users[_adr].groupid = Sellers.length;
-        //sellersCount++;
     }
 
     function MakeAdmin (address _adr)
@@ -177,7 +236,6 @@ contract EShop {
     {
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
                 Users[_adr].group == Groups.Seller, "user cannot become admin");
-        //require(Users[_adr].group == Groups.Normal, "user MUST be in Normal group to set it as Admin");
         if (Users[_adr].group == Groups.Seller)
             delete Sellers[Users[_adr].groupid - 1];
 
@@ -190,6 +248,7 @@ contract EShop {
         public
         onlyAdmin
     {
+        require(_adr != wallet, "User is main admin");
         require(Users[_adr].group != Groups.Normal, "user is already in Normal group");
         require(Users[_adr].ownedGames == 0, "User cannot have created games");
         if (Users[_adr].group == Groups.Admin)
@@ -213,14 +272,36 @@ contract EShop {
         Users[msg.sender].name = _new;
     }
 
-    function ChangeName (string memory _new, address _addr) // pakeisti bet kokio userio varda, bet tik adminui
+    function ChangeDescription (string memory _desc)
         public
-        onlyAdmin
     {
-        Users[_addr].name = _new;
+        //tikrininmo cj
+        Users[msg.sender].description = _desc;
     }
 
-    function GetSellersGames(address _adr)
+    function ChangeYear (uint256 _year)
+        public
+    {
+        require(_year >= 1 && _year <= 9999, "");
+        Users[msg.sender].year = _year;
+    }
+
+    function ChangeMail (string memory _mail)
+        public
+    {
+        Users[msg.sender].email = _mail;
+    }
+
+    function ChangeInfo (string memory _name, string memory _desc, uint256 _year, string memory _email)
+        public
+    {
+        Users[msg.sender].name = _name;
+        Users[msg.sender].description = _desc;
+        Users[msg.sender].year = _year;
+        Users[msg.sender].email = _email;
+    }
+
+    function GetSellersGames(address _adr) // id + sukurimo data
         public
         view
         returns (bytes32[] memory)
@@ -229,7 +310,7 @@ contract EShop {
         uint256 k = 0;
         for (uint256 i = 0; i<games.length; i++)
         {
-            if (games[i].seller == _adr)
+            if (games[i].seller == _adr && games[i].initialized)
             {
                 arr[k] = bytes32(games[i].id); // zaidimo id
                 k++;
@@ -238,53 +319,91 @@ contract EShop {
         return arr;
     }
 
-    function GetUsersGames(address _adr)
+    function GetUsersGames(address _adr) // id + pirkimo data
         public
         view
-        returns (bytes32[] memory)
+        returns (bytes32[] memory, bytes32[] memory)
     {
-        //require(Users[_adr].group == Groups.Seller, "user is not a seller");
-        //uint256 len = Users[_adr].ownedGames;
+        //require(Users[_adr].ownedGames > 0, "user doesnt have any games";)
         bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
         for (uint256 i = 0; i<games.length; i++)
         {
             if (UserHasGame(_adr, i))
             {
                 arr[k] = bytes32(i);
+                dates[k] = bytes32(Users[_adr].buyDates[i]);
                 k++;
             }
         }
-        return arr;
+        return (arr, dates);
     }
 
-    /*function Test ()
+    function GetPriceBought(uint256 _id)
         public
-        pure
-        returns (bytes32[10] memory)
+        view
+        returns (uint256 price)
     {
-        bytes32[10] memory arr;
-        //string memory res;
-        for(uint256 i = 0; i<10; i++)
-        {
-           // res = string(i);
-            arr[i] = bytes32(i*2);
-        }
-        return arr;
+        return Users[msg.sender].myGames[_id].price;
     }
 
-    event print(string msg1, string msg2);
-    event print2(address a, uint256 b);
-    event print3(string m, uint256 len);
-    event print4(uint256 ownedgames);
-    function Test2(address _adr)
+    function AskRefund(uint256 _id, string memory _reason)
         public
     {
-        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
-        emit print2(_adr, arr.length);
-        bytes32[] memory arr2 = new bytes32[](10);
-        emit print3('10 dydzio', arr2.length);
-        emit print4(Users[_adr].ownedGames);
+        require(Users[msg.sender].myGames[_id].initialized, "you dont own this game");
+        require(!HasAskedRefund(msg.sender, _id), "You already requested refund for this game");
+        refunds.push(RefundReq({
+            gameId: _id,
+            owner: msg.sender,
+            reason: _reason,
+            price: GetPriceBought(_id),
+            state: RequestState.Waiting
+        }));
+        Users[msg.sender].myRequests[_id] = true;
+        waitingRefunds ++;
     }
-    */
+
+    function HasAskedRefund (address _adr, uint256 _id)
+        public
+        view
+        returns (bool)
+    {
+        return Users[_adr].myRequests[_id];
+    }
+
+    function GetRefundsLength ()
+        public
+        view
+        returns (uint256)
+    {
+        return refunds.length;
+    }
+
+    function ConfirmRefund (uint256 _id)
+        public
+        payable
+        onlyAdmin
+    {
+        require(refunds[_id].state == RequestState.Waiting, "");
+        if (games[refunds[_id].gameId].seller != msg.sender)
+            AddDebt(games[refunds[_id].gameId].seller, refunds[_id].price);
+        refunds[_id].owner.transfer(refunds[_id].price);
+        delete Users[refunds[_id].owner].myGames[refunds[_id].gameId];
+        delete Users[refunds[_id].owner].buyDates[refunds[_id].gameId];
+        Users[refunds[_id].owner].ownedGames--;
+        games[refunds[_id].gameId].soldCopies--; //
+        delete Users[refunds[_id].owner].myRequests[refunds[_id].gameId]; //
+        refunds[_id].state = RequestState.Refunded;
+        waitingRefunds--;
+    }
+
+    function DenyRefund (uint256 _id)
+        public
+        onlyAdmin
+    {
+        require(refunds[_id].state == RequestState.Waiting, "");
+        refunds[_id].state = RequestState.Denied;
+        waitingRefunds--;
+    }
 }
