@@ -1,6 +1,6 @@
 import {Main} from './seller.js'
 
-class Admin extends Main {
+export class Admin extends Main {
     async render (){
         main.setLoading(true)
         await main.load()
@@ -416,8 +416,8 @@ class Admin extends Main {
       }
 }
 
-//let main = new Admin()
-
+let main = new Admin()
+/*
 $(() => {
     $(window).load(() => {
         window.main = new Admin()
@@ -425,3 +425,4 @@ $(() => {
         //main.render()
     })
 })
+*/

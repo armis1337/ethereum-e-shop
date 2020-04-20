@@ -25,7 +25,7 @@ export class Main extends Loader {
       options.append('<button type="button" id="3" class="option">Edit game</button>')
       $('#3').on('click', main.renderUpdateGame)
       //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
-      if (main.App.userdata[4] != 0)
+      if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
       {
         options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt</b></button>')
         $('#debtbtn').on('click', main.renderDebtReturnForm)
@@ -323,9 +323,3 @@ export class Main extends Loader {
 }
 
 let main = new Main()
-
-$(() => {
-  $(window).load(() => {
-    main.render()
-  })
-})
