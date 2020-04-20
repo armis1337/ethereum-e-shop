@@ -16,7 +16,7 @@ export class Admin extends Main {
     }
 
     async renderOptions () {
-        super.renderOptions()
+        super.renderOptions(main.App)
         var options = $('#options')
         options.find('#2').html('All games')
         options.find('#2').unbind()
@@ -28,11 +28,18 @@ export class Admin extends Main {
         options.append('<button type="button" id="5" class="option">Manage sellers group</button>')
         options.append('<button type="button" id="6" class="option">Remove user\'s rights</button>')
         options.append('<br>')
-        options.append('<button type="button" id="7" class="option">View refund requests</button>')
+        var newRefunds = await main.App.shop.waitingRefunds().then(function(result){return result.toNumber()})
+        options.append('<button type="button" id="7" class="option">View refund requests (' + newRefunds +')</button>')
         options.find('#4').on('click', main.renderAdmins)
         options.find('#5').on('click', main.renderSellers)
         options.find('#6').on('click', main.renderRemoveGroups)
         options.find('#7').on('click', main.renderRefundRequests)
+        if ($('#debtbtn').length != 0)
+        {
+            $('#7').after($('#debtbtn'))
+            $('br').first().remove()
+        }
+
         $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
         //$('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
@@ -104,8 +111,6 @@ export class Admin extends Main {
             }
 
             $('#requestsTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
-
-            div.append('<p style="color:red">sugalvot ka daryt su refundais kai istrina zaidima ir siaip klaidu yra</p>')
         }
         else{
             div.append('<p>No refund requests at the time</p>')

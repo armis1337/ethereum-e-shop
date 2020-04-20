@@ -1,5 +1,10 @@
 import Loader from './loader.js'
 export class Main extends Loader {
+  constructor (app = null) {
+    super()
+    if (app != null)
+      this.App = app
+  }
   async render() { // new
       main.setLoading(true)
       await main.load()
@@ -11,9 +16,12 @@ export class Main extends Loader {
       main.setLoading(false)
     }
 
-    async renderOptions() { // new
+    async renderOptions(app = null) { // new
       if ($('#options').length != 0)
         return
+
+      if (app != null)
+        main.App = app
 
       $('#content').append('<div id="options"></div>')
       var options = $('#options')
@@ -27,7 +35,7 @@ export class Main extends Loader {
       //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
       if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
       {
-        options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt</b></button>')
+        options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt to the shop</b></button>')
         $('#debtbtn').on('click', main.renderDebtReturnForm)
         $('#1, #3').prop('disabled', true)
       }

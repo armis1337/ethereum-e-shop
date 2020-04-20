@@ -123,7 +123,8 @@ contract EShop {
         onlyOwner(_id)
     {
         Users[games[_id].seller].ownedGames--;
-        delete games[_id];
+        //delete games[_id]; // pakeista i \i/
+        games[_id].initialized = false;
         gameCount--;
     }
 
@@ -353,11 +354,14 @@ contract EShop {
         onlyAdmin
     {
         require(refunds[_id].state == RequestState.Waiting, "");
-        AddDebt(games[refunds[_id].gameId].seller, refunds[_id].price);
+        if (games[refunds[_id].gameId].seller != msg.sender)
+            AddDebt(games[refunds[_id].gameId].seller, refunds[_id].price);
         refunds[_id].owner.transfer(refunds[_id].price);
         delete Users[refunds[_id].owner].myGames[refunds[_id].gameId];
         delete Users[refunds[_id].owner].buyDates[refunds[_id].gameId];
         Users[refunds[_id].owner].ownedGames--;
+        games[refunds[_id].gameId].soldCopies--; //
+        delete Users[refunds[_id].owner].myRequests[refunds[_id].gameId]; //
         refunds[_id].state = RequestState.Refunded;
         waitingRefunds--;
     }

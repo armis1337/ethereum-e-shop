@@ -177,7 +177,10 @@ export class Main extends Loader {
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
                 row.append('<td>' + game[1] + '</td>')
-                row.append('<td>' + '<a href="game.html?id=' + game[1] + '">' + name + '</a></td>')
+                if (game[0])
+                    row.append('<td>' + '<a href="game.html?id=' + game[1] + '">' + name + '</a></td>')
+                else
+                    row.append('<td>' + name + '</td>')
                 row.append('<td>' + year +'-'+ month + '-' + day + ' ' + h + ':' + min + ':' + sec + '</td>')
             }
             $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})

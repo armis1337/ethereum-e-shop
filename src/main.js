@@ -8,6 +8,7 @@ import {Main as profile} from './profile.js'
 var url = window.location.pathname
 switch (url) {
     case '/index.html':
+    case '/':
         window.main = new index()
         var main = window.main
         break

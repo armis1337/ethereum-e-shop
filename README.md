@@ -19,7 +19,7 @@ swx all
 \  
 * iteracija 3
   * [x] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 
-  * [ ] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
+  * [x] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
   * [ ] Pardaveju profilio puslapis - Aprasymo redagavimas, nuotraukos keitimas (?)
   * [ ] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
 \  

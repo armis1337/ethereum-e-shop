@@ -9,4 +9,4 @@ npm install
 truffle migrate
 npm run dev
 fi
-exit
+exit 0
