@@ -49,4 +49,4 @@ restart ganache
 $ ./launch.sh
 logout out of metamask
 login with new mnemonic
-```0
+```
