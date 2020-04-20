@@ -18,10 +18,10 @@ swx all
   * [x] Sutvarkyt viska normalei  - perrasytas visas .js funkcionalumas 
 \  
 * iteracija 3
-  * [ ] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 
-  * [ ] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
-  * [ ] Pardaveju profilio puslapis - Aprasymo redagavimas, nuotraukos keitimas (?)
-  * [ ] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
+  * [x] Vartotojo profilio puslapis - informacijos atvaizdavimas: visi turimi zaidimai, ju pirkimo data t.t. 
+  * [x] Pinigu uz zaidima susigrazinimas (refund) paprastiems vartotojams
+  * [x] Pardaveju profilio puslapis - Aprasymo, email, metu redagavimas
+  * [x] Administratoriaus sasaja - refund prasymu perziurejimas, patvirtinimas arba atmetimas
 \  
 * iteracija 4
   * [ ] Zaidimo info puslapis paprastiems vartotojams - Galimybe vertinti zaidima (x/10), palikti atsiliepima

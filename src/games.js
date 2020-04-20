@@ -1,5 +1,5 @@
 import Loader from './loader.js'
-class Main extends Loader {
+export class Main extends Loader {
     async render() {
         main.setLoading(true)
         await main.load()
@@ -11,16 +11,20 @@ class Main extends Loader {
           
         if (gameCount > 0)
         {
-            $(".gameList").html()
-            $(".gameList").empty()
-            const br = "<br />"
-            const hr = "<hr />"
+            $("#gameList").html()
+            $("#gameList").empty()
             for (var i = 0; i < gamesLen; i++)
             {
                 var game = await main.App.shop.games(i)
                 if (!game[0])
-                continue
+                    continue
                 
+                if ($('.column').length%2 == 0)
+                    $('#gameList').append('<div class="row"></div>')
+
+                $('.row').last().append('<div class="column"></div>')
+
+
                 var name = "<p>Name: " + game[3] +  "</p>"
                 var desc = "<p>Description: " + game[4] + "</p>"
                 var seller = "<p>Seller: " + game[2] + "</p>"
@@ -32,7 +36,7 @@ class Main extends Loader {
                 var state = "<p>For sale</p>"
                 else
                 var state = "<p>Not for sale</p>"
-                $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state,/* ii, id,*/ url)
+                $('.column').last().append(name, seller, price, releaseYear, desc, soldCopies, state,/* ii, id,*/ url)
             }      
         }
 
@@ -41,9 +45,3 @@ class Main extends Loader {
 };
 
 let main = new Main()
-
-$(() => {
-    $(window).load(() => {
-        main.render()
-    })
-})
