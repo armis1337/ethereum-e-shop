@@ -12,35 +12,35 @@
 </head>
 <body>
 	<div id="content">
-        <a href="games.html">list of games to buy</a><br>
-        <h1><center>E-Shop</center></h1>
-        <p>Total number of games in the shop: <span id="gameCount"></span></p>
-        <p>My owned games: <span id="myGames"></span></p>
-        <p>My account is: <span id="acc"></span><span class="admin" style="color:red;"> - Admin</span></p>
-        <div class="admin">
-                <center>
-			<h4>Create new game</h6>
-			<form onSubmit="App.createGame(); 
-                            window.alert('Confirm the transaction to create new game'); 
-                            return false;">
-                <label for="newGame">Name:</label>
-				<input id="newGame" type="text" placeholder="Game's name" required>
-                <br>
-                <label for="releaseYear">Year:</label>
-                <input id="releaseYear" type="number" min="1900" max="2020" required>
-                <br>
-                <label for="price">Price (wei):</label>
-                <input id="price" type="number" step="0.0000001" placeholder="Price in wei" required>
-                <br>
-                <textarea id="shortDesc" rows="4" cols="50" maxlength="280" placeholder="Short description"></textarea>
-                <br>
-                <input type="checkbox" id="sale" checked="true">
-                <label for="sale">Set game for sale</label>
-                <br>
-				<input type="submit" value="Create">
-                </form>
-		</center>
-        </div>
+                <a href="games.html">list of games to buy</a><br>
+                <h1><center>E-Shop</center></h1>
+                <p>Total number of games in the shop: <span id="gameCount"></span></p>
+                <p>My owned games: <span id="myGames"></span></p>
+                <p>My account is: <span id="acc"></span><span class="admin" style="color:red;"> - Admin</span></p>
+                <div class="admin">
+                        <center>
+                                <h4>Create new game</h6>
+                                <form onSubmit="App.createGame(); 
+                                window.alert('Confirm the transaction to create new game'); 
+                                return false;">
+                                        <label for="newGame">Name:</label>
+                                        <input id="newGame" type="text" placeholder="Game's name" required>
+                                        <br>
+                                        <label for="releaseYear">Year:</label>
+                                        <input id="releaseYear" type="number" min="1900" max="2020" required>
+                                        <br>
+                                        <label for="price">Price (wei):</label>
+                                        <input id="price" type="number" step="0.0000001" placeholder="Price in wei" required>
+                                        <br>
+                                        <textarea id="shortDesc" rows="4" cols="50" maxlength="280" placeholder="Short description"></textarea>
+                                        <br>
+                                        <input type="checkbox" id="sale" checked="true">
+                                        <label for="sale">Set game for sale</label>
+                                        <br>
+                                        <input type="submit" value="Create">
+                                </form>
+                        </center>
+                </div>
         </div>
         <div id = "loader">
                 <p><center>Loading...</center></p>

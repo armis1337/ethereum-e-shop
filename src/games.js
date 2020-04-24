@@ -23,19 +23,14 @@ var App = {
       // modern dapp browsers
       if (window.ethereum){
         window.web3 = new Web3(ethereum)
-        //console.log("sweiki")
         try
         {
-          //request account access if needed
           await ethereum.enable()
-          //accounts now exposed
-          //web3.eth.sendTransaction({/* ... */})
         }
         catch (error)
         {
           //user denied account access...
           console.log(error)
-          //window.alert("Please allow access")
         }
       }
       // legacy dapp browsers
@@ -43,8 +38,6 @@ var App = {
       {
         App.web3Provider = web3.currentProvider
         window.web3 = new Web3(web3.currentProvider)
-        // accounts always exposed
-        //web3.eth.sendTransaction({/* ... */})
       }
       // non-dapp browsers
       else
@@ -78,24 +71,7 @@ var App = {
   
       //update the app loading state
       App.setLoading(true)
-      
-      /*
-      //render account
-      $('#acc').html(App.account)
-      var admin = await App.shop.admin()
-      $('#adm').html(admin)
-      */
-      /*$('#acc').html(App.account)
-      var gamecount = await App.shop.gameCount()
-      gamecount = gamecount.toNumber()
-      $('#gameCount').html(gamecount)
-      
-      var userdata = await App.shop.Users(App.account.toString())
-      //console.log(userdata[2].toNumber())
-      
-      if (userdata[2].toNumber() != 2)
-        await $('.admin').remove()*/
-      
+
       await App.renderGames()
       App.setLoading(false)
     },
@@ -127,25 +103,8 @@ var App = {
 
           $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state, url)
         }
-      }
-
-        /*if (item[3] == 0)
-        {
-          status = '<p>Status: For sale</p>'
-        }
-        else
-        {
-          status = '</p>Status: Not for sale</p>'
-        }
-        if (App.account == ownerAddress)
-        {
-          $(".gameList").append(hr, id, name, owner, price, status, "you are owner of this item")
-        }
-        else {
-          $(".gameList").append(hr, id, name, owner, price, status)
-        }*/
-        
-      },
+      }        
+    },
   
     setLoading: (boolean) => {
       App.loading = boolean
