@@ -3,40 +3,116 @@ class Main extends Loader {
     async render() {
         main.setLoading(true)
         await main.load()
+        await main.loadGames()
+        await main.renderGames()
+        main.renderPages()
+        main.setLoading(false)
+    }
 
-        //main
+    async loadGames() { // galima bus perkelt i loader.js
         var gameCount = await main.App.shop.gameCount()
         var gamesLen = await main.App.shop.GetGamesLength()
-        gamesLen = gamesLen.toNumber()
-          
-        if (gameCount > 0)
+        main.App.games = []
+        main.App.page = 1
+        for (var i = 0; i < gamesLen; i++)
         {
-            $(".gameList").html()
-            $(".gameList").empty()
-            const br = "<br />"
-            const hr = "<hr />"
-            for (var i = 0; i < gamesLen; i++)
-            {
-                var game = await main.App.shop.games(i)
-                if (!game[0])
-                continue
-                
-                var name = "<p>Name: " + game[3] +  "</p>"
-                var desc = "<p>Description: " + game[4] + "</p>"
-                var seller = "<p>Seller: " + game[2] + "</p>"
-                var price = "<p>Price: " + game[5] + "</p>"
-                var releaseYear = "<p>Year released: " + game[6] + "</p>"
-                var soldCopies = "<p>Total sold copies: " + game[7] + "</p>"
-                var url = "<a href=" + window.location.origin + "/game.html?id=" + i + ">Game's page</a>"
-                if (game[8] == true)
-                var state = "<p>For sale</p>"
-                else
-                var state = "<p>Not for sale</p>"
-                $(".gameList").append(hr, name, seller, price, releaseYear, desc, soldCopies, state,/* ii, id,*/ url)
-            }      
+            var game = await main.App.shop.games(i)
+            if (game[0])
+                main.App.games.push(game)
+        }
+    }
+
+    async renderGames (page = 1) {
+        if ($('#gameList').length != 0) {
+            $('#gameList').empty()
         }
 
-        main.setLoading(false)
+        $('#content').append('<div id="gameList"></div>')
+        var div = $('#gameList')
+
+        main.App.page = page
+
+        var gameCount = main.App.games.length
+        gameCount -= (page - 1) * 5
+
+        if (gameCount > 0) {
+
+            if (gameCount <= 5)
+                var k = gameCount + 5 * (page - 1)
+            else
+                var k = 5 * page
+            
+            for (var i = (page - 1) * 5; i < k; i++) {
+                //console.log('i = ' + i)
+                var game = await main.App.games[i]
+                //console.log(game)
+                div.append('<div id="' + i + '"></div>')
+                var gdiv = $('#' + i)
+                if($('#gameList').find('div').length > 1)
+                    gdiv.before('<hr>')
+                var name = game[3]
+                var desc = game[4]
+                var seller = game[2]
+                var price = game[5]
+                var soldCopies = game[7]
+                var releaseYear = game[6]
+                var url = window.location.origin + '/game.html?id=' + i
+                if (game[8])
+                    var state = 'For sale'
+                else
+                    var state = 'Not for sale' 
+                gdiv.append('<p>Name: ' + name + '</p>')
+                gdiv.append('<p>Seller: ' + seller + '</p>')
+                gdiv.append('<p>Price: ' + price + '</p>')
+                gdiv.append('<p>Release year: ' + releaseYear + '</p>')
+                gdiv.append('<p>Description: ' + desc + '</p>')
+                gdiv.append('<p>Total sold copies: ' + soldCopies + '</p>')
+                gdiv.append('<p>' + state + '</p>')
+                gdiv.append('<a href="' + url + '">Game page</a>')
+            }
+        }
+        else {
+            div.append('<p>There are no games at the moment</p>')
+        }
+    }
+
+    async renderPages() {
+        if (main.App.games.length < 5)
+            return
+        if ($('#pages').length != 0)
+            $('#pages').remove()
+
+        var maxpages = main.App.games.length / 5 + 1
+        maxpages = Math.floor(maxpages)
+        
+        $('#content').append('<div id="pages"></div>')
+        var div = $('#pages')
+        div.css('text-align', 'center')
+        
+        var i
+        if (main.App.page == maxpages)
+            i = maxpages - 2
+        else if (main.App.page > 1)
+            i = main.App.page - 1
+        else
+            i = 1
+        for (var j = i; j <= i + 2; j++) {
+            console.log('y = ' + j)
+            if (j == main.App.page)
+                div.append('<button type="button" disabled="true">' + j + '</button>')   
+            else
+                div.append('<button type="button" id="' + j +'">' + j + '</button>')
+
+            $('#pages #' + j).on('click', {i: j}, async function (e) {
+                main.setLoading(true)
+                await main.renderGames(e.data.i);
+                main.renderPages()
+                $('body').scrollTop()
+                main.setLoading(false)
+            })
+        }
+        $('#pages :button').css({'padding-top':'1%', 'padding-bottom':'1%', 'padding-left':'3%',
+                                    'padding-right':'3%', 'margin':'1%', 'text-align':'center'})
     }
 };
 
