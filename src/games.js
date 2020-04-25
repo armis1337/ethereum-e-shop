@@ -90,14 +90,15 @@ class Main extends Loader {
         div.css('text-align', 'center')
         
         var i
-        if (main.App.page == maxpages)
+        if (main.App.page == maxpages && maxpages > 2)
             i = maxpages - 2
         else if (main.App.page > 1)
             i = main.App.page - 1
         else
             i = 1
         for (var j = i; j <= i + 2; j++) {
-            console.log('y = ' + j)
+            if (j > maxpages)
+                break
             if (j == main.App.page)
                 div.append('<button type="button" disabled="true">' + j + '</button>')   
             else
