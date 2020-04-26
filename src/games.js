@@ -33,21 +33,14 @@ export class Main extends Loader {
         main.App.page = page
 
         var gameCount = main.App.games.length
-        //gameCount -= (page - 1) * 5
         gameCount -= (page - 1) * 6
 
         if (gameCount > 0) {
-
-            //if (gameCount <= 5)
-            //  var k = gameCount + 5 * (page - 1)
-            //else
-            //  var k = 5 * page
             if (gameCount <= 6)
                 var k = gameCount + 6 * (page - 1)
             else
                 var k = 6 * page
-            
-            //for (var i = (page - 1) * 5; i < k; i++) {
+
             for (var i = (page - 1) * 6; i < k; i++) {
                 if ($('.column').length%2 == 0)
                     $('#gameList').append('<div class="row"></div>')
