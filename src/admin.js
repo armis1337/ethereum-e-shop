@@ -340,25 +340,7 @@ export class Admin extends Main {
                     var status = "Not for sale"
                 var sold = game[7].toNumber()
                 var seller = game[2]
-                
-                var date = new Date(game[9].toNumber() * 1000)
-                var year = date.getFullYear()
-                var month = date.getMonth() + 1
-                if(month < 10)
-                    month = '0' + month
-                var day = date.getDate()
-                if(day < 10)
-                    day = '0' + day
-                var hour = date.getHours()
-                if(hour < 10)
-                    hour = '0' + hour
-                var min = date.getMinutes()
-                if(min < 10)
-                    min = '0' + min
-                var sec = date.getSeconds()
-                if(sec < 10)
-                    sec = '0' + sec
-                var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
+                var date = main.makeDate(game[9])
 
                 // add values to table
                 table.append('<tr></tr>')

@@ -65,7 +65,7 @@ export class Main extends Loader {
         form.append('<hr>')
         form.append('<label for="email">E-Mail:</label>')
         form.append('<br>')
-        form.append('<input id="newEmail" type="email" placeholder="post@example.com">' + email + '</input>')
+        form.append('<input id="newEmail" type="email" placeholder="post@example.com" value="' + email +'"></input>')
         form.append('<hr>')
         form.append('<label for="shortDesc">Description:</label>')
         form.append('<br>')
@@ -203,7 +203,8 @@ export class Main extends Loader {
                 var game = await main.App.shop.games(web3.toBigNumber(gamedata[0][i]).toNumber())
                 var name = game[3]
                 var bought = web3.toBigNumber(gamedata[1][i]).toNumber()
-                bought = new Date(bought * 1000)
+                bought = main.makeDate(bought)
+                /*bought = new Date(bought * 1000)
                 var year = bought.getFullYear()
                 var month = bought.getMonth() + 1
                 if (month < 10)
@@ -219,7 +220,7 @@ export class Main extends Loader {
                     min = '0' + min
                 var sec = bought.getSeconds()
                 if (sec < 10)
-                    sec = '0' + sec
+                    sec = '0' + sec*/
                 // add values to table
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
@@ -228,7 +229,7 @@ export class Main extends Loader {
                     row.append('<td>' + '<a href="game.html?id=' + game[1] + '">' + name + '</a></td>')
                 else
                     row.append('<td>' + name + '</td>')
-                row.append('<td>' + year +'-'+ month + '-' + day + ' ' + h + ':' + min + ':' + sec + '</td>')
+                row.append('<td>' + bought + '</td>')
             }
             $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
         }
