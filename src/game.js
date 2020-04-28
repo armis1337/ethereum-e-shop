@@ -31,7 +31,7 @@ export class Main extends Loader {
             $("#gameInfo").append("<p style='color:red'>You are seller of this item</p>")
             $("#buy").remove() 
         }
-        else if (await main.App.shop.UserHasGame(main.App.account, id))
+        else if (await main.App.shop.UserHasGame(main.App.account, id)) // cia cj beda
         {
             $('#buy').remove()
             $('#gameInfo').append("<p style='color:red'>You own this item</p>")
