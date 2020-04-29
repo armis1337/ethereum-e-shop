@@ -41,7 +41,6 @@ export class Admin extends Main {
         }
 
         $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
-        //$('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
     async renderRefundRequests () {

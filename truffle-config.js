@@ -47,7 +47,7 @@ module.exports = {
       port: 1337,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
       //gas: 150721975,           // Gas sent with each transaction (default: ~6700000)
-      //gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
+      gasPrice: 10000000000,  // 20 gwei (in wei) (default: 100 gwei)
      },
 
     // Another network with more advanced options...
@@ -89,13 +89,13 @@ module.exports = {
     solc: {
        version: "0.6.4",    // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      // settings: {          // See the solidity docs for advice about optimization and evmVersion
+      settings: {          // See the solidity docs for advice about optimization and evmVersion
         optimizer: {
           enabled: true,
           runs: 1
         },
       //  evmVersion: "byzantium"
-      // }
+      }
     }
   }
 }

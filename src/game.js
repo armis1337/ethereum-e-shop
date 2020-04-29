@@ -90,12 +90,15 @@ export class Main extends Loader {
         var div = $('#options')
         var heigth = $(window).height() * 0.1 + 'px'
         div.css({'text-align': 'center', 'heigth': heigth})
+
+        div.append('<button type="button" class="option" id="viewReviews">View all reviews</button>')
+        $('#viewReviews').on('click', main.renderReviews)
         if (main.App.userdata[1] == 0)
         {
             if (! await main.App.shop.UserHasGame(main.App.account, main.App.game[1]))
             {
                 div.append('<button type="button" class="option" id="buyBtn">Buy</button>')
-                $('#buyBtn').on('click', {id:main.App.game[1], price:main.App.game[5]}, main.buy)
+                $('#buyBtn').on('click', {price:main.App.game[5]}, main.buy)
             }
             else 
             {
@@ -110,14 +113,36 @@ export class Main extends Loader {
                     $('#reviewBtn').on('click', main.renderReviewForm)
                     $('#reviewBtn').prop('disabled', false)
                 }
-
+                div.append('<button type="button" class="option" id="bugbtn">Report bug</button>')
+                $('#bugbtn').on('click', main.renderBugForm)
             }
         }
-        div.append('<button type="button" class="option" id="viewReviews">View all reviews</button>')
-        $('#viewReviews').on('click', main.renderReviews)
+        else if (main.App.userdata[1] == 1 || main.App.userdata[1] == 2)
+        {
+            div.append('<button type="button" class="option" id="viewbugs">View bugs</button>')
+            $('#viewbugs').on('click', main.renderBugs)
+        }
 
         $('.option').css({'width':'11%', 'heigth':'85%', 'margin':'0.5%'})
         //$('#reviewBtn').css('heigth', '80%')
+    }
+
+    renderBugForm () {
+        if ($('#bug').length != 0){
+            main.clearContent()
+            return
+        }
+        else main.clearContent()
+        $('#options').after('<div id="bug"></div>')
+        var div = $('#bug')
+        div.css({'padding':'10px','text-align':'center', 'width':'40%', 'margin-top':'10px', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        div.append('<form id="bugForm"></form>')
+        var form = $('#bugForm')
+        form.append('<label for="msg">Report a bug</label><br>')
+        form.append('<textarea id="msg" rows="4" cols="50" maxlength="100" required></textarea>')
+        form.append('<br><button type="submit">Submit</button>')
+        form.submit(main.submitBug)
+        
     }
 
     renderRefundForm () {
@@ -210,7 +235,52 @@ export class Main extends Loader {
             div.append('<p>This game has no reviews at the time</p>')
         }
         div.show()
-        
+    }
+
+    async renderBugs () {
+        if ($('#bugList').length != 0)
+        {
+            main.clearContent()
+            return
+        }
+        else main.clearContent()
+
+        $('#options').after('<div id="bugList"></div>')
+        var div = $('#bugList')
+        div.hide()
+        div.css({'padding':'10px','text-align':'center', 'width':'40%', 'margin-bottom':'2%', 'margin-top':'10px', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        if (main.App.game[11] > 0)
+        {
+            div.append('<h2>Reported bugs</h2>')
+            var bugIds = await main.App.shop.GetBugs(main.App.game[1])
+            console.log(bugIds)
+            for (var i = 0; i < main.App.game[11]; i++)
+            {
+                if (i > 0)
+                    div.append('<hr style="width:80%">')
+                
+                bugIds[i] = web3.toBigNumber(bugIds[i]).toNumber()
+                var bug = await main.App.shop.bugs(bugIds[i])
+                //console.log('bug id: ' + bugIds[i])
+                div.append('<p>reported on: ' + main.makeDate(bug[2]) + '</p>')
+                div.append('<p>by: ' + bug[1] + '</p>')
+                div.append('<p>fixed: ' + bug[4] + '</p>')
+                div.append('<p>description:</p>')
+                div.append('<textarea readonly style="resize:none;width:80%">' + bug[3] + '</textarea>')
+                div.append('<button type="button" id="fixbug' + bugIds[i] + '"></button>')
+                if (!bug[4])
+                    $('#fixbug' + bugIds[i]).html('Mark bug as fixed')
+                else
+                    $('#fixbug' + bugIds[i]).html('Mark bug as unfixed')
+                $('#fixbug' + bugIds[i]).on('click', {id: bugIds[i]}, main.fixBug)
+
+            }
+        }
+        else {
+            div.append('<p>This game doesnt have any reported bugs</p>')
+        }
+
+        div.show()
     }
 
     clearContent() {//except options ir game info
@@ -218,32 +288,50 @@ export class Main extends Loader {
         content.find('div:not(#options, #gameInfo, #sellerInfo)').remove()
     }
 
+    async fixBug (e) {
+        e.preventDefault()
+        //main.setLoading(true)
+        window.alert('confirm the transaction to report a bug')
+        await main.App.shop.FixBug(e.data.id)
+        main.clearContent()
+        main.renderBugs()
+        //main.setLoading(false)
+        //window.location.reload()
+    }
+
+    async submitBug (e) {
+        e.preventDefault()
+        var msg = $('#msg').val()
+        main.setLoading(true)
+        window.alert('confirm the transaction to report a bug')
+        await main.App.shop.AddBug(main.App.game[1], msg)
+        window.location.reload()
+    }
+
     async submitRefundRequest (e) {
         e.preventDefault()
-        var id = location.search.substring(4)
         var msg = $('#reason').val()
         main.setLoading(true)
         window.alert('confirm the transaction to submit refund request')
-        await main.App.shop.AskRefund(id, msg)
+        await main.App.shop.AskRefund(main.App.game[1], msg)
         window.location.reload()
     }
 
     async submitReview (e) {
         e.preventDefault()
-        var id = location.search.substring(4)
         var msg = $('#msg').val()
         var rating = $('input[name="rating"]:checked').val()
         main.setLoading(true)
         window.alert('confirm the transaction to submit review')
-        await main.App.shop.AddReview(id, msg, rating)
+        await main.App.shop.AddReview(main.App.game[1], msg, rating)
         window.location.reload()
     }
 
     async buy (e) {
         e.preventDefault()
         main.setLoading(true)
-        window.alert('confirm the transaction to buy game id:' + e.data.id)
-        await main.App.shop.BuyGame(e.data.id, {from: main.App.account, value: e.data.price})
+        window.alert('confirm the transaction to buy game id:' + main.App.game[1])
+        await main.App.shop.BuyGame(main.App.game[1], {from: main.App.account, value: e.data.price})
         main.render()
         main.setLoading(false)
         window.location.reload()

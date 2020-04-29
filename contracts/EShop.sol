@@ -18,7 +18,9 @@ contract EShop {
         bool state; //0(false) - not for sale; 1(true) - for sale
         uint256 creationDate;
         uint256 reviewCount;
+        uint256 bugCount;
         mapping (uint256 => uint256) reviews; //zaidimo review nr -> review nr bendram masyve
+        mapping (uint256 => uint256) bugs; //zaidimo bugo numeris -> bendras bugo nr visam shope
     }
 
     Game[] public games; // parduodami zaidimai
@@ -68,6 +70,16 @@ contract EShop {
 
     Review[] public reviews;
 
+    struct Bug {
+        uint256 gameId;
+        address by;
+        uint256 date;
+        string text;
+        bool isFixed;
+    }
+
+    Bug[] public bugs;
+
     constructor() public {
         wallet = msg.sender;
         Users[msg.sender].name = "Admin";
@@ -102,8 +114,13 @@ contract EShop {
         _;
     }
 
+    modifier onlyCreator(uint256 _id) { // or admin
+        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin);
+        _;
+    }
+
     modifier onlyOwner(uint256 _id) {
-        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin, "only creator of this item can do this");
+        require(UserHasGame(msg.sender, _id));
         _;
     }
 
@@ -123,7 +140,8 @@ contract EShop {
                 state: _state,
                 initialized: true,
                 creationDate: now,
-                reviewCount: 0
+                reviewCount: 0,
+                bugCount: 0
             }));
         gameCount ++;
         Users[msg.sender].ownedGames ++;
@@ -131,7 +149,7 @@ contract EShop {
 
     function UpdateGame (uint256 _id, string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
         public
-        onlyOwner(_id)
+        onlyCreator(_id)
     {
         games[_id].name = _name;
         games[_id].short_desc = _sh_desc;
@@ -142,7 +160,7 @@ contract EShop {
 
     function DeleteGame (uint256 _id)
         public
-        onlyOwner(_id)
+        onlyCreator(_id)
     {
         Users[games[_id].seller].ownedGames--;
         //delete games[_id]; // pakeista i \i/
@@ -329,7 +347,7 @@ contract EShop {
         uint256 k = 0;
         for (uint256 i = 0; i<games.length; i++)
         {
-            if (k == Users[_adr].ownedGames - 1)
+            if (k == Users[_adr].ownedGames)
                 break;
 
             if (games[i].seller == _adr && games[i].initialized)
@@ -340,27 +358,23 @@ contract EShop {
         }
         return arr;
     }
-    //event Date (uint256 date);
     function GetUsersGames(address _adr) // id + pirkimo data
         public
         view
         returns (bytes32[] memory, bytes32[] memory)
     {
-        //emit Date(1337);
         require(Users[_adr].ownedGames > 0);
         bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
         bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
         for (uint256 i = 0; i<games.length; i++)
         {
-            if (k == Users[msg.sender].ownedGames - 1)
+            if (k == Users[msg.sender].ownedGames)
                 break;
 
             if (UserHasGame(msg.sender, i))
             {
-                //emit Date(Users[msg.sender].buyDates[i]);
                 arr[k] = bytes32(i);
-                //dates[k] = bytes32(Users[msg.sender].buyDates[i]);
                 dates[k] = bytes32(Users[_adr].buyDates[i]);
                 k++;
             }
@@ -453,9 +467,8 @@ contract EShop {
 
     function AddReview (uint256 _id, string memory _msg, uint256 _rating)
         public
-        onlyNormal
+        onlyOwner(_id)
     {
-        require(UserHasGame(msg.sender, _id));
         require(!Users[msg.sender].myReviews[_id]);
         require(_rating >= 1 && _rating <= 10);
         reviews.push(Review({
@@ -482,5 +495,40 @@ contract EShop {
             arr[i] = bytes32(games[_id].reviews[i]);
         }
         return arr;
+    }
+
+    function AddBug (uint256 _id, string memory _msg)
+        public
+        onlyOwner(_id)
+    {
+        bugs.push(Bug({
+            gameId: _id,
+            text: _msg,
+            by: msg.sender,
+            date: now,
+            isFixed: false
+        }));
+        games[_id].bugs[games[_id].bugCount] = bugs.length - 1;
+        games[_id].bugCount ++;
+    }
+
+    function GetBugs (uint256 _id)
+        public
+        view
+        returns (bytes32[] memory)
+    {
+        bytes32[] memory arr = new bytes32[](games[_id].bugCount);
+        for (uint256 i = 0; i < games[_id].bugCount; i++)
+        {
+            arr[i] = bytes32(games[_id].bugs[i]);
+        }
+        return arr;
+    }
+
+    function FixBug (uint256 _id) // bug id
+        public
+        onlyCreator(bugs[_id].gameId)
+    {
+        bugs[_id].isFixed = !bugs[_id].isFixed;
     }
 }

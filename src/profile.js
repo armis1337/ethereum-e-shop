@@ -195,10 +195,10 @@ export class Main extends Loader {
             table.find('tr').append('<td><b>Name</b></td>')
             table.find('tr').append('<td><b>Bought</b></td>')
 
-            var gamedata = await main.App.shop.GetUsersGames()
+            var gamedata = await main.App.shop.GetUsersGames(main.App.account)
             //gamedata[0] - zaidimu idai
             //gamedata[1] - datos
-            console.log(gamedata[0])
+            console.log(gamedata[1])
             for (var i = 0; i<gamedata[0].length; i++)
             {
                 var game = await main.App.shop.games(web3.toBigNumber(gamedata[0][i]).toNumber())
