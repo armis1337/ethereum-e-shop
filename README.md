@@ -25,10 +25,11 @@ swx all
 \  
 * iteracija 4
   * [x] Zaidimo info puslapis paprastiems vartotojams - Galimybe vertinti zaidima (x/10), palikti atsiliepima
-  * [ ] Zaidimo info puslapis paprastiems vartotojams - Galimybe pranesti apie klaida (report a bug)
-  * [ ] Zaidimo info puslapis pardavejams - 1.4 + Skaityti atsiliepimus bei pranesimus apie klaidas
-  * [ ] Zaidimo info puslapis pardavejams - Pazymeti klaida kaip istaisyta
+  * [x] Zaidimo info puslapis paprastiems vartotojams - Galimybe pranesti apie klaida (report a bug)
+  * [x] Zaidimo info puslapis pardavejams - 1.4 + Skaityti atsiliepimus bei pranesimus apie klaidas
+  * [x] Zaidimo info puslapis pardavejams - Pazymeti klaida kaip istaisyta
   * [ ] Zaidimo info puslapis administratoriams - Visa info paprastiems vartotojams + info pardavejams
+  * [ ] Sutvarkyt viska nrml
 
 ### requirements to run
 ```
