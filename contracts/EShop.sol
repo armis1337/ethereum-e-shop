@@ -341,15 +341,15 @@ contract EShop {
         return arr;
     }
     //event Date (uint256 date);
-    function GetUsersGames(/*address _adr*/) // id + pirkimo data
+    function GetUsersGames(address _adr) // id + pirkimo data
         public
         view
         returns (bytes32[] memory, bytes32[] memory)
     {
         //emit Date(1337);
-        require(Users[msg.sender].ownedGames > 0);
-        bytes32[] memory arr = new bytes32[](Users[msg.sender].ownedGames);
-        bytes32[] memory dates = new bytes32[](Users[msg.sender].ownedGames);
+        require(Users[_adr].ownedGames > 0);
+        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
+        bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
         for (uint256 i = 0; i<games.length; i++)
         {
@@ -361,7 +361,7 @@ contract EShop {
                 //emit Date(Users[msg.sender].buyDates[i]);
                 arr[k] = bytes32(i);
                 //dates[k] = bytes32(Users[msg.sender].buyDates[i]);
-                dates[k] = bytes32(Users[msg.sender].buyDates[i]);
+                dates[k] = bytes32(Users[_adr].buyDates[i]);
                 k++;
             }
         }
