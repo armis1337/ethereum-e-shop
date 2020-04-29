@@ -4,72 +4,120 @@ export class Main extends Loader {
         main.setLoading(true)
         await main.load()
 
+        $('#content').css({'heigth': $(window).height()})
+
         var id = location.search.substring(4)
         var gamesLen = await main.App.shop.GetGamesLength()       
         gamesLen = gamesLen.toNumber()
         if (id > gamesLen || id < 0 || isNaN(id))
             main.goBack()
 
-        var game = await main.App.shop.games(id)
-        if (!game[0])
+        await main.loadGame(id)
+        document.title = main.App.game[3]
+
+        if (!main.App.game[0])
             main.goBack()
 
-        $("#gameInfo #name").html(game[3]);
-        $("#gameInfo #desc").html(game[4]);
-        $("#gameInfo #year").html(game[6].toNumber());
-        $("#gameInfo #price").html(game[5].toNumber());
-        $("#gameInfo #seller").html(game[2]);
-        $("#gameInfo #soldCount").html(game[7].toNumber())
-        if (game[8] == true)
-            var state = "For sale";
-        else
-            var state = "Not for sale";
-        $("#gameInfo #state").html(state);
-
-        if (game[2] == main.App.account)
-        {
-            $("#gameInfo").append("<p style='color:red'>You are seller of this item</p>")
-            $("#buy").remove() 
-        }
-        else if (await main.App.shop.UserHasGame(main.App.account, id)) // cia cj beda
-        {
-            $('#buy').remove()
-            $('#gameInfo').append("<p style='color:red'>You own this item</p>")
-            /*if (! await main.App.shop.HasAskedRefund(main.App.account, id))
-                main.renderOptions()
-            else
-                $('#gameInfo').append('<p>You have refund request pending</p>')*/
-        }
-        else if (await main.App.shop.Users(main.App.account).then(function(result){return result[1].toNumber()}))
-        {
-            //console.log('!!!')
-            $('#buy').remove()
-        }
-        else if (!game[8])
-        {
-            $('#buy').remove()
-        }
-
-        $('#buy').on('submit', {id: id, price: game[5].toFixed()}, main.buy)
-        
-        main.renderOptions()
+        await main.renderGameInfo()        
+        await main.renderOptions()
         main.setLoading(false)
     }
 
-    renderOptions () {
+    async renderGameInfo () {
+        if ($('#gameInfo').length != 0)
+            return
+        
+        $('#content').append('<div id="gameInfo"></div>')
+        var div = $('#gameInfo')
+        div.hide()
+        div.css({'text-align':'center', 'width':'50%', 'margin-bottom':'1%' , 
+                'margin-top':'1%', 'margin-left':'25%', 'margin-right':'25%', 
+                'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray',
+                'padding-top': '1%', 'padding-bottom': '1%', /*'heigth': heigth*/})
+
+        div.append('<h1>' + main.App.game[3] + '</h1>')
+        div.append('<hr>')
+        div.append('<textarea readonly id="gdesc">' + main.App.game[4] + '</textarea>')
+        div.append('<p>Year: ' + main.App.game[6]  + '</p>')
+        div.append('<p>Added to shop: ' + main.makeDate(main.App.game[9]) + '</p>')
+        div.append('<p>Sold copies: ' + main.App.game[7] + '</p>')
+        //style="text-align:left;margin-left:20%"
+        div.append('<p>Price: ' + main.App.game[5] + '</p>')
+        if (main.App.game[8])
+            div.append('<p style="color:green">For sale<p>')
+        else
+            div.append('<p style="color:red">Not for sale</p>')
+        div.append('<p>Seller: ' + main.App.game[2] + '</p>')
+        
+        div.append('<button type="button" id="showseller">Show sellers info</button>')
+        main.App.seller = await main.App.shop.Users(main.App.game[2])
+        $('#showseller').on('click', function () {
+            if($('#sellerInfo').length != 0)
+            {
+                $('#sellerInfo').remove()
+                return
+            }
+            div.append('<div id="sellerInfo"></div>')
+            var div2 = $('#sellerInfo')
+            div2.append('<hr style="width:80%">')
+            if (main.App.seller[0].length != 0)
+                div2.append('<h3>' + main.App.seller[0] + '</h3>')
+            if (main.App.seller[7] != 0)
+                div2.append('<p>Year: ' + main.App.seller[7]  + '</p>')
+            if (main.App.seller[8].length != 0)
+                div2.append('<p>Email: ' + main.App.seller[8] + '<p>')
+            
+            div2.append('<textarea readonly id="sdesc">' + main.App.seller[6] + '</textarea>')
+
+            $('#sdesc').css({'resize': 'none', 'width': '80%', 'text-align': 'center'})
+            $('#sdesc').prop('rows', 10)
+            console.log('sellers desc: ' + main.App.seller[6])
+        })
+
+
+        div.find('hr').css({'width': '80%'})
+        $('#gdesc').css({'resize': 'none', 'width': '80%', 'text-align': 'center'})
+        $('#gdesc').prop('rows', 6)
+        div.find('p').css({'text-align': 'left', 'margin-left':'20%'})
+
+        div.show()
+    }
+
+    async renderOptions () {
         if ($('#options').length !=0)
             return
         $('#gameInfo').after('<div id="options"></div>')
         var div = $('#options')
-        div.css('text-align', 'center')
-        div.append('<button type="Button" id="refundbtn">Ask for a refund</button>')
-        $('#refundbtn').on('click', main.renderRefundForm)
+        var heigth = $(window).height() * 0.1 + 'px'
+        div.css({'text-align': 'center', 'heigth': heigth})
+        if (main.App.userdata[1] == 0)
+        {
+            if (! await main.App.shop.UserHasGame(main.App.account, main.App.game[1]))
+            {
+                div.append('<button type="button" class="option" id="buyBtn">Buy</button>')
+                $('#buyBtn').on('click', {id:main.App.game[1], price:main.App.game[5]}, main.buy)
+            }
+            else 
+            {
+                div.append('<button type="Button" class="option" id="refundbtn" disabled="true">Ask for a refund</button>')
+                div.append('<button type="button" class="option" id="reviewBtn" disabled="true">Leave review</button>')
+                if (! await main.App.shop.GetRefundState(main.App.game[1])){
+                    
+                    $('#refundbtn').on('click', main.renderRefundForm)
+                    $('#refundbtn').prop('disabled', false)
+                }
+                if (! await main.App.shop.GetReviewState(main.App.game[1])){
+                    $('#reviewBtn').on('click', main.renderReviewForm)
+                    $('#reviewBtn').prop('disabled', false)
+                }
 
-        div.append('<button type="button" id="reviewBtn">Leave review</button>')
-        $('#reviewBtn').on('click', main.renderReviewForm)
-
-        div.append('<button type="button" id="viewReviews">View all reviews</button>')
+            }
+        }
+        div.append('<button type="button" class="option" id="viewReviews">View all reviews</button>')
         $('#viewReviews').on('click', main.renderReviews)
+
+        $('.option').css({'width':'11%', 'heigth':'85%', 'margin':'0.5%'})
+        //$('#reviewBtn').css('heigth', '80%')
     }
 
     renderRefundForm () {
@@ -142,7 +190,7 @@ export class Main extends Loader {
         $('#options').after('<div id="reviews"></div>')
         var div = $('#reviews')
         div.hide()
-        div.css({'padding':'10px','text-align':'center', 'width':'40%', 'margin-top':'10px', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        div.css({'padding':'10px','text-align':'center', 'width':'40%', 'margin-bottom':'2%', 'margin-top':'10px', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
         var id = location.search.substring(4)
         var reviewIds = await main.App.shop.GetReviews(id)
         if (reviewIds.length != 0) {
@@ -167,12 +215,11 @@ export class Main extends Loader {
 
     clearContent() {//except options ir game info
         var content = $('#content')
-        content.find('div:not(#options, #gameInfo)').remove()
+        content.find('div:not(#options, #gameInfo, #sellerInfo)').remove()
     }
 
     async submitRefundRequest (e) {
         e.preventDefault()
-
         var id = location.search.substring(4)
         var msg = $('#reason').val()
         main.setLoading(true)
@@ -183,7 +230,6 @@ export class Main extends Loader {
 
     async submitReview (e) {
         e.preventDefault()
-
         var id = location.search.substring(4)
         var msg = $('#msg').val()
         var rating = $('input[name="rating"]:checked').val()
@@ -200,7 +246,7 @@ export class Main extends Loader {
         await main.App.shop.BuyGame(e.data.id, {from: main.App.account, value: e.data.price})
         main.render()
         main.setLoading(false)
-        //window.location.reload()
+        window.location.reload()
     }
 }
 

@@ -67,9 +67,9 @@ export class Main extends Loader {
         form.append('<br>')
         form.append('<input id="newEmail" type="email" placeholder="post@example.com" value="' + email +'"></input>')
         form.append('<hr>')
-        form.append('<label for="shortDesc">Description:</label>')
+        form.append('<label for="newDesc">Description:</label>')
         form.append('<br>')
-        form.append('<textarea id="newDesc" rows="6" maxlength="280" style="width:75%" placeholder="Description">' + desc + '</textarea>')
+        form.append('<textarea id="newDesc" rows="10" maxlength="500" style="width:75%" placeholder="Description">' + desc + '</textarea>')
         form.append('<br>')
         form.append('<button type="submit" style="margin:1%">Submit</button>')
 
@@ -152,7 +152,7 @@ export class Main extends Loader {
             games = 'Owned games: ' + games
             div.append('<p>' + games + '</p>')
         }
-        div.append('<textarea id="description" rows="6" readonly>' + desc + '</textarea>')
+        div.append('<textarea id="description" rows="10" readonly>' + desc + '</textarea>')
         if (desc == 'No description')
             $('#description').css({'font-style':'italic', 'color':'grey'})
 
@@ -195,14 +195,16 @@ export class Main extends Loader {
             table.find('tr').append('<td><b>Name</b></td>')
             table.find('tr').append('<td><b>Bought</b></td>')
 
-            var gamedata = await main.App.shop.GetUsersGames(main.App.account)
+            var gamedata = await main.App.shop.GetUsersGames()
             //gamedata[0] - zaidimu idai
             //gamedata[1] - datos
+            console.log(gamedata[0])
             for (var i = 0; i<gamedata[0].length; i++)
             {
                 var game = await main.App.shop.games(web3.toBigNumber(gamedata[0][i]).toNumber())
                 var name = game[3]
                 var bought = web3.toBigNumber(gamedata[1][i]).toNumber()
+                console.log(bought)
                 bought = main.makeDate(bought)
                 /*bought = new Date(bought * 1000)
                 var year = bought.getFullYear()
@@ -235,7 +237,7 @@ export class Main extends Loader {
         }
         else
         {
-            div.append('yuo own no games lmaoo=D')
+            div.append('You dont own any games')
         }
         div.show()
     }

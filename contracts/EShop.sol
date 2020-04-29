@@ -74,6 +74,7 @@ contract EShop {
         Users[msg.sender].group = Groups.Admin;
         Admins.push(msg.sender);
         Users[msg.sender].groupid = Admins.length;
+        CreateGame("nfs", "desc", 1337, 1998, true);
     }
 
     modifier onlyAdmin() {
@@ -228,7 +229,7 @@ contract EShop {
 
     function UserHasGame (address _addr, uint256 _id) public view returns (bool)
     {
-        require(Users[_addr].group != Groups.Normal, "");
+        require(Users[_addr].group == Groups.Normal, "");
         return Users[_addr].myGames[_id].initialized;
     }
 
@@ -339,29 +340,48 @@ contract EShop {
         }
         return arr;
     }
-
-    function GetUsersGames(address _adr) // id + pirkimo data
+    //event Date (uint256 date);
+    function GetUsersGames(/*address _adr*/) // id + pirkimo data
         public
         view
         returns (bytes32[] memory, bytes32[] memory)
     {
-        require(Users[_adr].ownedGames > 0);
-        bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
-        bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
+        //emit Date(1337);
+        require(Users[msg.sender].ownedGames > 0);
+        bytes32[] memory arr = new bytes32[](Users[msg.sender].ownedGames);
+        bytes32[] memory dates = new bytes32[](Users[msg.sender].ownedGames);
         uint256 k;
         for (uint256 i = 0; i<games.length; i++)
         {
-            if (k == Users[_adr].ownedGames - 1)
+            if (k == Users[msg.sender].ownedGames - 1)
                 break;
 
-            if (UserHasGame(_adr, i))
+            if (UserHasGame(msg.sender, i))
             {
+                //emit Date(Users[msg.sender].buyDates[i]);
                 arr[k] = bytes32(i);
-                dates[k] = bytes32(Users[_adr].buyDates[i]);
+                //dates[k] = bytes32(Users[msg.sender].buyDates[i]);
+                dates[k] = bytes32(Users[msg.sender].buyDates[i]);
                 k++;
             }
         }
         return (arr, dates);
+    }
+
+    function GetRefundState(uint256 _id)
+        public
+        view
+        returns (bool)
+    {
+        return Users[msg.sender].myRequests[_id];
+    }
+
+    function GetReviewState(uint256 _id)
+        public
+        view
+        returns (bool)
+    {
+        return Users[msg.sender].myReviews[_id];
     }
 
     function GetPriceBought(uint256 _id)

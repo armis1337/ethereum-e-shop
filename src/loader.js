@@ -47,6 +47,11 @@ class Loader {
     this.App.account = web3.eth.accounts[0]
   }
 
+  async loadGame(id) {
+    var game = await this.App.shop.games(id)
+    this.App.game = game
+  }
+
   async loadContract() {
     //const shop = await $.getJSON('EShop.json')
     const shop = await $.getJSON('EShop.json')
