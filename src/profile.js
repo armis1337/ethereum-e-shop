@@ -65,7 +65,7 @@ export class Main extends Loader {
         form.append('<hr>')
         form.append('<label for="email">E-Mail:</label>')
         form.append('<br>')
-        form.append('<input id="newEmail" type="email" placeholder="post@example.com">' + email + '</input>')
+        form.append('<input id="newEmail" type="email" placeholder="post@example.com" value="' + email + '"></input>')
         form.append('<hr>')
         form.append('<label for="shortDesc">Description:</label>')
         form.append('<br>')
@@ -234,7 +234,7 @@ export class Main extends Loader {
         }
         else
         {
-            div.append('yuo own no games lmaoo=D')
+            div.append('You dont own any games')
         }
         div.show()
     }

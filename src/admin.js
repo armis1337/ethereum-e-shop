@@ -34,6 +34,19 @@ export class Admin extends Main {
         options.find('#5').on('click', main.renderSellers)
         options.find('#6').on('click', main.renderRemoveGroups)
         options.find('#7').on('click', main.renderRefundRequests)
+
+        options.append('<button type="button" id="8" class="option">Add 7 games to shop</button>')
+        $('#8').on('click', async function() {
+            //(string memory _name, string memory _sh_desc, uint256 _price, uint256 _year, bool _state)
+
+            await main.App.shop.CreateGame('nfs mw', 'nfs mw short desc', 13337, 2005, true)
+            await main.App.shop.CreateGame('nfs pro street', 'nfs ps short desc', 13337, 2004, true)
+            await main.App.shop.CreateGame('nfs underground', 'nfs u short desc', 13337, 2003, true)
+            await main.App.shop.CreateGame('nfs underground2', 'nfs mw short desc', 13337, 2002, true)
+            await main.App.shop.CreateGame('gta 5', 'gtaaaa', 42000, 2005, true)
+            await main.App.shop.CreateGame('gta 1', '2d gta lol', 13337, 2005, true)
+            await main.App.shop.CreateGame('forza', 'nfs mw short desc', 13337, 2005, true)
+        })
         if ($('#debtbtn').length != 0)
         {
             $('#7').after($('#debtbtn'))
