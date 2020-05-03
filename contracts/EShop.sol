@@ -86,41 +86,41 @@ contract EShop {
         Users[msg.sender].group = Groups.Admin;
         Admins.push(msg.sender);
         Users[msg.sender].groupid = Admins.length;
-        CreateGame("nfs", "desc", 1337, 1998, true);
+        //CreateGame("nfs", "desc", 1337, 1998, true);
     }
 
     modifier onlyAdmin() {
-        require(Users[msg.sender].group == Groups.Admin);
+        require(Users[msg.sender].group == Groups.Admin, "only admin can do this");
         _;
     }
 
     modifier onlySeller() { // or admin XD
-        require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin);
+        require(Users[msg.sender].group == Groups.Seller || Users[msg.sender].group == Groups.Admin, "only seller can do this");
         _;
     }
 
     modifier onlyNormal() {
-        require(Users[msg.sender].group == Groups.Normal);
+        require(Users[msg.sender].group == Groups.Normal, "only normal user can do this");
         _;
     }
 
     modifier ifGameExists(uint256 _id) {
-        require(_id < games.length && games[_id].initialized);
+        require(_id < games.length && games[_id].initialized, "game doesnt exist");
         _;
     }
 
     modifier notSeller() {
-        require(Users[msg.sender].group != Groups.Seller);
+        require(Users[msg.sender].group != Groups.Seller, "sellers cant do this");
         _;
     }
 
     modifier onlyCreator(uint256 _id) { // or admin
-        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin);
+        require(games[_id].seller == msg.sender || Users[msg.sender].group == Groups.Admin, "only creator of the game can do this");
         _;
     }
 
     modifier onlyOwner(uint256 _id) {
-        require(UserHasGame(msg.sender, _id));
+        require(UserHasGame(msg.sender, _id), "only owner of the game can do this");
         _;
     }
 
@@ -172,8 +172,8 @@ contract EShop {
         public // reiktu gal i internal paskui pakeist
         onlyAdmin
     {
-        require(Users[_adr].group != Groups.Normal);
-        require(_amount > 0);
+        require(Users[_adr].group != Groups.Normal, "user cannot be in normal group");
+        require(_amount > 0, "wrong input");
         Users[_adr].debt += _amount;
         Users[_adr].debtTo = msg.sender; //
     }
@@ -182,7 +182,7 @@ contract EShop {
         public
         payable
     {
-        require(Users[msg.sender].debt > 0);
+        require(Users[msg.sender].debt > 0, "wrong input");
         //wallet.transfer(msg.value);
         Users[msg.sender].debtTo.transfer(msg.value); //
         Users[msg.sender].debt -= msg.value;
@@ -193,9 +193,9 @@ contract EShop {
         payable
         onlyNormal
     {
-        require(games[_id].state == true);
-        require(msg.value >= games[_id].price);
-        require(Users[msg.sender].myGames[_id].initialized == false);
+        require(games[_id].state == true, "game is not for sale");
+        require(msg.value >= games[_id].price, "wrong amount");
+        require(Users[msg.sender].myGames[_id].initialized == false, "game is deleted");
         wallet.transfer(games[_id].price / 6);//20% shopui
         if (Users[games[_id].seller].debt > 0) // jei skolingas
         {
@@ -255,9 +255,9 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(_adr != wallet);
+        require(_adr != wallet, "main admin cannot be removed from admin group");
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
-                Users[_adr].group == Groups.Admin);
+                Users[_adr].group == Groups.Admin, "user cannot become seller");
 
         if (Users[_adr].group == Groups.Admin)
             delete Admins[Users[_adr].groupid - 1];
@@ -272,7 +272,7 @@ contract EShop {
         onlyAdmin
     {
         require((Users[_adr].group == Groups.Normal && Users[_adr].ownedGames == 0) ||
-                Users[_adr].group == Groups.Seller);
+                Users[_adr].group == Groups.Seller, "user cannot become admin");
         if (Users[_adr].group == Groups.Seller)
             delete Sellers[Users[_adr].groupid - 1];
 
@@ -285,9 +285,10 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(_adr != wallet);
-        require(Users[_adr].group != Groups.Normal);
-        require(Users[_adr].ownedGames == 0);
+        require(_adr != wallet, "you cannot remove main admin from admin group");
+        require(Users[_adr].group != Groups.Normal, "user is in normal group already");
+        require(Users[_adr].ownedGames == 0, "user cannot become normal user - delete games first");
+        require(Users[_adr].debt == 0, "user has to return debt first");
         if (Users[_adr].group == Groups.Admin)
         {
             Users[_adr].group = Groups.Normal;
@@ -319,7 +320,7 @@ contract EShop {
     function ChangeYear (uint256 _year)
         public
     {
-        require(_year >= 1 && _year <= 9999);
+        require(_year >= 1 && _year <= 9999, "wrong input");
         Users[msg.sender].year = _year;
     }
 
@@ -363,7 +364,7 @@ contract EShop {
         view
         returns (bytes32[] memory, bytes32[] memory)
     {
-        require(Users[_adr].ownedGames > 0);
+        require(Users[_adr].ownedGames > 0, "user doesnt have any games");
         bytes32[] memory arr = new bytes32[](Users[_adr].ownedGames);
         bytes32[] memory dates = new bytes32[](Users[_adr].ownedGames);
         uint256 k;
@@ -409,8 +410,9 @@ contract EShop {
     function AskRefund(uint256 _id, string memory _reason)
         public
     {
-        require(Users[msg.sender].myGames[_id].initialized);
-        require(!HasAskedRefund(msg.sender, _id));
+        //require(Users[msg.sender].myGames[_id].initialized, "you dont own this game");
+        require(UserHasGame(msg.sender, _id), "you dont own this game");
+        require(!HasAskedRefund(msg.sender, _id), "you cannot ask for refund twice");
         refunds.push(RefundReq({
             gameId: _id,
             owner: msg.sender,
@@ -460,7 +462,7 @@ contract EShop {
         public
         onlyAdmin
     {
-        require(refunds[_id].state == RequestState.Waiting);
+        require(refunds[_id].state == RequestState.Waiting, "request is already confirmed");
         refunds[_id].state = RequestState.Denied;
         waitingRefunds--;
     }
@@ -469,8 +471,8 @@ contract EShop {
         public
         onlyOwner(_id)
     {
-        require(!Users[msg.sender].myReviews[_id]);
-        require(_rating >= 1 && _rating <= 10);
+        require(!Users[msg.sender].myReviews[_id], "you have alrady written a review for this game");
+        require(_rating >= 1 && _rating <= 10, "wrong input");
         reviews.push(Review({
             gameId: _id,
             by: msg.sender,

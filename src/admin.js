@@ -58,7 +58,7 @@ export class Admin extends Main {
 
         var reqCount = await main.App.shop.waitingRefunds()
 
-        if (1 > 0)
+        if (reqCount > 0)
         {
             div.append('<table id="requestsTable" style="width:100%"></table>')
             var table = $('#requestsTable')
@@ -248,44 +248,91 @@ export class Admin extends Main {
     async makeNormal(e) {
         e.preventDefault()
         var adr = $('#userAddress').val()
-        //
-        // tlikrinimooo
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to move user \n' + adr + '\nto Normal group')
-        await main.App.shop.MakeNormal(adr)
-        main.clearContent()
-        main.setLoading(false)
+        if (main.checkAddress(adr))
+        {
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if (user[1] == 0)
+            {
+                window.alert('user is already in normal group')
+            }
+            else if (user[2] != 0)
+            {
+                window.alert('please remove all users games first')
+            }
+            else if (user[4] != 0){
+                window.alert('user has not returned debt')
+            }
+            else {
+
+                window.alert('confirm the transaction to move user \n' + adr + '\nto Normal group')
+                await main.App.shop.MakeNormal(adr)
+            }
+            main.clearContent()
+            main.setLoading(false)
+        }
+        else return
     }
 
     async makeAdmin(e) {
         e.preventDefault()
         var adr = $('#adminAddress').val()
-        //
-        // irgi tikrinimo reik
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to make user\n' + adr + '\nAdmin')
-        await main.App.shop.MakeAdmin(adr)
-        main.clearContent()
-        await main.renderAdmins()
-        main.setLoading(false)
-        //window.location.reload()
+        if (main.checkAddress(adr)){
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if ((user[1] == 0 && user[2] == 0) || user[1] == 1) // jeigu normal ir neturi zaidimu arba selleris
+            {
+                window.alert('confirm the transaction to make user\n' + adr + '\nAdmin')
+                await main.App.shop.MakeAdmin(adr)
+            }
+            else if (user[1] == 0 && user[2] > 0)
+            {
+                window.alert('user cannot have any games to be Admin')
+            }
+            else if (user[1] == 2) {
+                window.alert('user is admin already')
+            }
+            main.clearContent()
+            await main.renderAdmins()
+            main.setLoading(false)
+        }
+        else return
     }
 
     async makeSeller(e) {
         e.preventDefault()
         var adr = $('#sellerAddress').val()
-        //
-        // tikrinimo reik
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to make user\n' + adr + '\nSeller')
-        await main.App.shop.MakeSeller(adr)
-        main.clearContent()
-        await main.renderSellers()
-        main.setLoading(false)
-        //window.location.reload()
+        if (main.checkAddress(adr)) {
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if ((user[1] == 0 && user[2] == 0) || user[1] == 2)
+            {
+                window.alert('confirm the transaction to make user\n' + adr + '\nSeller')
+                await main.App.shop.MakeSeller(adr)
+            }
+            else if (user[1] == 1)
+            {
+                window.alert('user is seller already')
+            }
+            else if (user[1] == 0 && user[2] > 0)
+            {
+                window.alert('user cannot have any bought games to be seller')
+            }
+            main.clearContent()
+            await main.renderSellers()
+            main.setLoading(false)
+        }
+        else return
+    }
+
+    checkAddress(adr) {
+        if (adr.length == 42 && !web3.toBigNumber(adr).isZero())
+            return true
+        else
+        {
+            window.alert('wrong address')
+            return false
+        }
     }
 
     async renderAllGames() {
@@ -403,12 +450,3 @@ export class Admin extends Main {
 }
 
 let main = new Admin()
-/*
-$(() => {
-    $(window).load(() => {
-        window.main = new Admin()
-        window.main.render()
-        //main.render()
-    })
-})
-*/

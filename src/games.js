@@ -41,7 +41,7 @@ export class Main extends Loader {
                 var price = game[5]
                 var soldCopies = game[7]
                 var releaseYear = game[6]
-                var url = window.location.origin + '/game.html?id=' + i
+                var url = window.location.origin + '/game.html?id=' + game[1]
                 if (game[8])
                     var state = 'For sale'
                 else

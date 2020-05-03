@@ -33,7 +33,7 @@ export class Main extends Loader {
         div.css({'text-align':'center', 'width':'50%', 'margin-bottom':'1%' , 
                 'margin-top':'1%', 'margin-left':'25%', 'margin-right':'25%', 
                 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray',
-                'padding-top': '1%', 'padding-bottom': '1%', /*'heigth': heigth*/})
+                'padding-top': '1%', 'padding-bottom': '1%'})
 
         div.append('<h1>' + main.App.game[3] + '</h1>')
         div.append('<hr>')
@@ -41,8 +41,7 @@ export class Main extends Loader {
         div.append('<p>Year: ' + main.App.game[6]  + '</p>')
         div.append('<p>Added to shop: ' + main.makeDate(main.App.game[9]) + '</p>')
         div.append('<p>Sold copies: ' + main.App.game[7] + '</p>')
-        //style="text-align:left;margin-left:20%"
-        div.append('<p>Price: ' + main.App.game[5] + '</p>')
+        div.append('<p>Price: ' + main.App.game[5] + 'wei (' + web3.fromWei(main.App.game[5], 'ether')  + 'eth)</p>')
         if (main.App.game[8])
             div.append('<p style="color:green">For sale<p>')
         else
@@ -60,18 +59,30 @@ export class Main extends Loader {
             div.append('<div id="sellerInfo"></div>')
             var div2 = $('#sellerInfo')
             div2.append('<hr style="width:80%">')
+
+            var is = false
+
             if (main.App.seller[0].length != 0)
                 div2.append('<h3>' + main.App.seller[0] + '</h3>')
             if (main.App.seller[7] != 0)
+            {
                 div2.append('<p>Year: ' + main.App.seller[7]  + '</p>')
+                is = true
+            }
             if (main.App.seller[8].length != 0)
+            {
                 div2.append('<p>Email: ' + main.App.seller[8] + '<p>')
-            
-            div2.append('<textarea readonly id="sdesc">' + main.App.seller[6] + '</textarea>')
-
-            $('#sdesc').css({'resize': 'none', 'width': '80%', 'text-align': 'center'})
-            $('#sdesc').prop('rows', 10)
-            console.log('sellers desc: ' + main.App.seller[6])
+                is = true
+            }
+            if (main.App.seller[6].length != 0)
+            {
+                div2.append('<textarea readonly id="sdesc">' + main.App.seller[6] + '</textarea>')
+                $('#sdesc').css({'resize': 'none', 'width': '80%', 'text-align': 'center'})
+                $('#sdesc').prop('rows', 10)
+            }
+            if (!is) {
+                div2.append('<p>Seller hasnt added any info about itself</p>')
+            }
         })
 
 
@@ -124,7 +135,6 @@ export class Main extends Loader {
         }
 
         $('.option').css({'width':'11%', 'heigth':'85%', 'margin':'0.5%'})
-        //$('#reviewBtn').css('heigth', '80%')
     }
 
     renderBugForm () {
@@ -227,7 +237,7 @@ export class Main extends Loader {
                 var review = await main.App.shop.reviews(reviewID)
                 div.append('<p style="text-align:left;margin-left:10%">By: ' + review[1] + '</p>')
                 div.append('<p style="text-align:left;margin-left:10%">' + main.makeDate(review[4]) + '</p>')
-                div.append('<p style="text-align:left;margin-left:10%">' + review[2].toNumber() + '/10')
+                div.append('<p style="text-align:left;margin-left:10%">' + review[2].toNumber() + '/10</p>')
                 div.append('<textarea readonly style="resize:none; width:80%">' + review[3] + '</textarea>')              
             }
         }
@@ -261,7 +271,6 @@ export class Main extends Loader {
                 
                 bugIds[i] = web3.toBigNumber(bugIds[i]).toNumber()
                 var bug = await main.App.shop.bugs(bugIds[i])
-                //console.log('bug id: ' + bugIds[i])
                 div.append('<p>reported on: ' + main.makeDate(bug[2]) + '</p>')
                 div.append('<p>by: ' + bug[1] + '</p>')
                 div.append('<p>fixed: ' + bug[4] + '</p>')
@@ -290,13 +299,10 @@ export class Main extends Loader {
 
     async fixBug (e) {
         e.preventDefault()
-        //main.setLoading(true)
         window.alert('confirm the transaction to report a bug')
         await main.App.shop.FixBug(e.data.id)
         main.clearContent()
         main.renderBugs()
-        //main.setLoading(false)
-        //window.location.reload()
     }
 
     async submitBug (e) {
