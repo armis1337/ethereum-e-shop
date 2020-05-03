@@ -28,7 +28,7 @@ swx all
   * [x] Zaidimo info puslapis paprastiems vartotojams - Galimybe pranesti apie klaida (report a bug)
   * [x] Zaidimo info puslapis pardavejams - 1.4 + Skaityti atsiliepimus bei pranesimus apie klaidas
   * [x] Zaidimo info puslapis pardavejams - Pazymeti klaida kaip istaisyta
-  * [ ] Zaidimo info puslapis administratoriams - Visa info paprastiems vartotojams + info pardavejams
+  * [x] Zaidimo info puslapis administratoriams - Visa info paprastiems vartotojams + info pardavejams
   * [ ] Sutvarkyt viska nrml
 
 ### requirements to run

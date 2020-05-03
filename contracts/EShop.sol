@@ -306,14 +306,12 @@ contract EShop {
     function ChangeName (string memory _new) // pasikeisti savo varda
         public
     {
-        //require reiktu pridet, kad belekokio sudo neprivestu, bet kol kas bus ok
         Users[msg.sender].name = _new;
     }
 
     function ChangeDescription (string memory _desc)
         public
     {
-        //tikrininmo cj
         Users[msg.sender].description = _desc;
     }
 
