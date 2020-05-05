@@ -78,7 +78,7 @@ export class Main extends Loader {
     }
 
     async renderPages() {
-        if (main.App.games.length < 5)
+        if (main.App.games.length < 6)
             return
         if ($('#pages').length != 0)
             $('#pages').remove()
