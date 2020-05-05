@@ -375,7 +375,7 @@ export class Admin extends Main {
                     continue
 
                 var name = game[3]
-                var price = game[5]
+                var price = main.makeEth(game[5]) + ' eth'
                 if (game[8])
                     var status = "For sale"
                 else
@@ -389,8 +389,7 @@ export class Admin extends Main {
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
                 row.append('<td><a href="game.html?id=' + i +'">' + name + '</a></td>')
-                row.append('<td>' + main.makeEth(price) + ' eth</td>')
-                //row.append('<td>' + Math.round((web3.fromWei(price, 'ether').toNumber() + Number.EPSILON) * 100) / 100 + ' eth</td>')
+                row.append('<td>' + price + '</td>')
                 row.append('<td>' + sold + '</td>')
                 row.append('<td>' + status + '</td>')
                 row.append('<td>' + date + '</td>')

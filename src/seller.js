@@ -151,7 +151,7 @@ export class Main extends Loader {
           continue
 
         var name = game[3]
-        var price = game[5]
+        var price = main.makeEth(game[5]) + ' eth'
         if (game[8])
           var status = "For sale"
         else
@@ -164,10 +164,7 @@ export class Main extends Loader {
         var row = table.find('tr').last()
         row.append('<td>' + id + '</td>')
         row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
-        // wei to eth 2 decimal numbers
-        //Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100
-        row.append('<td>' + main.makeEth(price) + ' eth</td>')
-        //row.append('<td>' + Math.round((web3.fromWei(price, 'ether').toNumber() + Number.EPSILON) * 100) / 100 + ' eth</td>')
+        row.append('<td>' + price + '</td>')
         row.append('<td>' + sold + '</td>')
         row.append('<td>' + date + '</td>')
         row.append('<td>' + status + '</td>')

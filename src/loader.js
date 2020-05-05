@@ -117,7 +117,6 @@ class Loader {
   }
 
   makeEth (wei) {
-    //Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100
     return Math.round((web3.fromWei(wei, 'ether').toNumber() + Number.EPSILON) * 100) / 100
   }
 
