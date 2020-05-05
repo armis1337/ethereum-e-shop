@@ -83,7 +83,7 @@ export class Main extends Loader {
         if ($('#pages').length != 0)
             $('#pages').remove()
 
-        var maxpages = main.App.games.length / 5 + 1
+        var maxpages = main.App.games.length / 6 + 1
         maxpages = Math.floor(maxpages)
         
         $('#content').append('<div id="pages"></div>')
