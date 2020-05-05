@@ -64,12 +64,12 @@ export class Main extends Loader {
     }
 
     async renderPages() {
-        if (main.App.games.length < 5)
+        if (main.App.games.length < 6)
             return
         if ($('#pages').length != 0)
             $('#pages').remove()
 
-        var maxpages = main.App.games.length / 5 + 1
+        var maxpages = main.App.games.length / 6 + 1
         maxpages = Math.floor(maxpages)
         
         $('#content').append('<div id="pages"></div>')
