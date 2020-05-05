@@ -1,5 +1,4 @@
 import {Main} from './seller.js'
-
 export class Admin extends Main {
     async render (){
         main.setLoading(true)
@@ -350,7 +349,6 @@ export class Admin extends Main {
         div.css('text-align', 'center')
         div.append('<center><h4>List of all shop\'s games</h4></center>')
 
-        //var createdGames = await main.App.shop.GetSellersGames(main.App.account)
         var gameCount = await main.App.shop.gameCount()
         if (gameCount > 0)
         {
@@ -376,8 +374,6 @@ export class Admin extends Main {
                 if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
                     continue
 
-                // get values
-                //var id = web3.toBigNumber(createdGames[i]).toNumber()
                 var name = game[3]
                 var price = game[5]
                 if (game[8])
@@ -393,7 +389,8 @@ export class Admin extends Main {
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
                 row.append('<td><a href="game.html?id=' + i +'">' + name + '</a></td>')
-                row.append('<td>' + price + '</td>')
+                row.append('<td>' + main.makeEth(price) + ' eth</td>')
+                //row.append('<td>' + Math.round((web3.fromWei(price, 'ether').toNumber() + Number.EPSILON) * 100) / 100 + ' eth</td>')
                 row.append('<td>' + sold + '</td>')
                 row.append('<td>' + status + '</td>')
                 row.append('<td>' + date + '</td>')
@@ -437,6 +434,7 @@ export class Admin extends Main {
                 var game = await main.App.shop.games(i) 
                 if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
                     continue 
+
                 select.append('<option value="' + i/*id*/ + '">' + game[3]/*name*/ + '</option>')
             }
             form.append('&nbsp;&nbsp;<button type="submit">OK</button>')

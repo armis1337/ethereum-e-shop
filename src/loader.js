@@ -53,7 +53,6 @@ class Loader {
   }
 
   async loadContract() {
-    //const shop = await $.getJSON('EShop.json')
     const shop = await $.getJSON('EShop.json')
     this.App.contracts.Shop = TruffleContract(shop)
     this.App.contracts.Shop.setProvider(this.App.web3Provider)
@@ -61,7 +60,7 @@ class Loader {
     this.App.userdata = await this.App.shop.Users(this.App.account.toString())
   }
 
-  async loadGames() { // galima bus perkelt i loader.js
+  async loadGames() {
     var gameCount = await this.App.shop.gameCount()
     var gamesLen = await this.App.shop.GetGamesLength()
     this.App.games = []
@@ -75,7 +74,6 @@ class Loader {
   }
 
   setLoading (boolean) {
-    //console.log('chaning state...')
     this.App.loading = boolean
     const loader = $('#loader')
     const content = $('#content')
@@ -116,6 +114,11 @@ class Loader {
         sec = '0' + sec
     date = year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + sec
     return date
+  }
+
+  makeEth (wei) {
+    //Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100
+    return Math.round((web3.fromWei(wei, 'ether').toNumber() + Number.EPSILON) * 100) / 100
   }
 
 };

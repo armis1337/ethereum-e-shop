@@ -93,7 +93,6 @@ export class Main extends Loader {
         await main.App.shop.ChangeInfo(name, desc, year, email)
         main.clearContent()
         window.location.reload()
-        //main.setLoading(false)
     }
 
     renderInfo() {
@@ -105,7 +104,6 @@ export class Main extends Loader {
 
         main.clearContent()
 
-        //$('#content').append('<div id="userinfo"></div>')
         $('#options').after('<div id="userinfo" class="info"></div>')
         var div = $('#userinfo')
         div.hide()
@@ -158,7 +156,6 @@ export class Main extends Loader {
 
         $('#description').css({'padding':'1%', 'resize':'none', 'width':'75%'})
         
-
         div.show()
     }
 
@@ -181,8 +178,7 @@ export class Main extends Loader {
         $('#options').after('<div id="gameList" class="info"></div>')
         var div = $('#gameList')
         div.hide()
-        //div.css({'padding':'10px', 'text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
-        // suzinom ar turi kazkiek zaidimu
+
         if (main.App.userdata[2].toNumber() > 0)
         {
             div.append('<table id="gamesTable" style="width:100%"></table>')
@@ -206,24 +202,7 @@ export class Main extends Loader {
                 var bought = web3.toBigNumber(gamedata[1][i]).toNumber()
                 console.log(bought)
                 bought = main.makeDate(bought)
-                /*bought = new Date(bought * 1000)
-                var year = bought.getFullYear()
-                var month = bought.getMonth() + 1
-                if (month < 10)
-                    month = '0' + month
-                var day = bought.getDate()
-                if (day < 10)
-                    day = '0' + day
-                var h = bought.getHours()
-                if (h < 10)
-                    h = '0' + h
-                var min = bought.getMinutes()
-                if (min < 10)
-                    min = '0' + min
-                var sec = bought.getSeconds()
-                if (sec < 10)
-                    sec = '0' + sec*/
-                // add values to table
+
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
                 row.append('<td>' + game[1] + '</td>')

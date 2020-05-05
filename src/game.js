@@ -41,7 +41,7 @@ export class Main extends Loader {
         div.append('<p>Year: ' + main.App.game[6]  + '</p>')
         div.append('<p>Added to shop: ' + main.makeDate(main.App.game[9]) + '</p>')
         div.append('<p>Sold copies: ' + main.App.game[7] + '</p>')
-        div.append('<p>Price: ' + main.App.game[5] + 'wei (' + web3.fromWei(main.App.game[5], 'ether')  + 'eth)</p>')
+        div.append('<p>Price: ' + main.App.game[5] + ' wei (' + main.makeEth(main.App.game[5]) + ' eth)</p>')
         if (main.App.game[8])
             div.append('<p style="color:green">For sale<p>')
         else

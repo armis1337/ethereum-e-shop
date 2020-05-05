@@ -38,7 +38,7 @@ export class Main extends Loader {
                 var name = game[3]
                 var desc = game[4]
                 var seller = game[2]
-                var price = game[5]
+                var price = main.makeEth(game[5]) + ' eth'
                 var soldCopies = game[7]
                 var releaseYear = game[6]
                 var url = window.location.origin + '/game.html?id=' + game[1]

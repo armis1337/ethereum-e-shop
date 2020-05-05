@@ -1,11 +1,6 @@
 import Loader from './loader.js'
 export class Main extends Loader {
-  constructor (app = null) {
-    super()
-    if (app != null)
-      this.App = app
-  }
-  async render() { // new
+  async render() {
       main.setLoading(true)
       await main.load()
 
@@ -16,7 +11,7 @@ export class Main extends Loader {
       main.setLoading(false)
   }
 
-  async renderOptions(app = null) { // new
+  async renderOptions(app = null) {
     if ($('#options').length != 0)
       return
 
@@ -32,7 +27,6 @@ export class Main extends Loader {
     $('#2').on('click', main.renderMyGames)
     options.append('<button type="button" id="3" class="option">Edit game</button>')
     $('#3').on('click', main.renderUpdateGame)
-    //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
     if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
     {
       options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt to the shop</b></button>')
@@ -43,7 +37,7 @@ export class Main extends Loader {
     $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
   }
 
-  async renderCreateGame() { // new +
+  async renderCreateGame() {
     if ($('#create').length != 0)
     {
       $('#create').remove()
@@ -56,12 +50,11 @@ export class Main extends Loader {
 
     var div = $('#create')
     div.hide()
-    //div.css('text-align', 'center')
+
     div.css({'padding':'2%', 'text-align':'center', 'width':'40%', 'margin-bottom':'2%', 'margin-top':'1%', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
     div.append('<h4 style="text-align:center">Create Game</h4>')
     div.append('<form id="newGame"></form>')
     var form = $('#newGame')
-    //form.css({'padding': '10px', 'margin-left': '30%', 'margin-right': '30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
     form.append('<label for="name">Name: </label>')
     form.append('<input id="name" type="text" placeholder="Game\'s name"><br>')
     form.append('<label for="releaseYear">Year: </label>')
@@ -75,7 +68,6 @@ export class Main extends Loader {
     form.append("&nbsp;&nbsp;&nbsp;")
     form.append('<button type="button" id="cancelCreate">Cancel</button>')
     form.submit(main.createGame)
-    //form.find('input').css({'width': '60%'})
     form.find('#name, #releaseYear, #price').css({'width': '30%',})
     form.find('#cancelCreate').on('click', main.clearContent)
 
@@ -117,7 +109,7 @@ export class Main extends Loader {
     window.location.reload()
   }
 
-  async renderMyGames() { // new +
+  async renderMyGames() {
     if ($('#myGames').length != 0)
     {
       $('#myGames').remove()
@@ -158,7 +150,6 @@ export class Main extends Loader {
         if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
           continue
 
-        // get values
         var name = game[3]
         var price = game[5]
         if (game[8])
@@ -166,8 +157,6 @@ export class Main extends Loader {
         else
           var status = "Not for sale"
         var sold = game[7].toNumber()
-
-        //var date = new Date(game[9].toNumber() * 1000)
         var date = main.makeDate(game[9])
 
         // add values to table
@@ -175,7 +164,10 @@ export class Main extends Loader {
         var row = table.find('tr').last()
         row.append('<td>' + id + '</td>')
         row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
-        row.append('<td>' + price + '</td>')
+        // wei to eth 2 decimal numbers
+        //Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100
+        row.append('<td>' + main.makeEth(price) + ' eth</td>')
+        //row.append('<td>' + Math.round((web3.fromWei(price, 'ether').toNumber() + Number.EPSILON) * 100) / 100 + ' eth</td>')
         row.append('<td>' + sold + '</td>')
         row.append('<td>' + date + '</td>')
         row.append('<td>' + status + '</td>')
@@ -189,7 +181,7 @@ export class Main extends Loader {
     div.show()
   }
 
-  async renderUpdateGame() { // new +
+  async renderUpdateGame() {
     if ($('#edit').length !=0)
     {
       $('#edit').remove()
@@ -207,7 +199,6 @@ export class Main extends Loader {
     div.append('<form id="games"></form>')
     if (createdGames.length > 0)
     {
-      //console.log('created games = ' + createdGames.length)
       var form = $('#games')
       form.append('<label for="gameList">Choose a game to edit: </label>')
       form.append('<select id="gameList"></select>')
@@ -217,6 +208,7 @@ export class Main extends Loader {
         var game = await main.App.shop.games(web3.toBigNumber(createdGames[i]).toNumber()) 
         if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
           continue 
+
         select.append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
       }
       form.append('&nbsp;&nbsp;<button type="submit">OK</button>')
@@ -228,7 +220,7 @@ export class Main extends Loader {
     div.show()
   }
 
-  async renderGameInfo(e) { // new +
+  async renderGameInfo(e) {
     if (typeof e == 'undefined')
       return
     e.preventDefault()
@@ -249,7 +241,7 @@ export class Main extends Loader {
     form.append('<input id="year" type="number" value="' + game[6] + '" required>')
     form.append('<br>')
     form.append('<label for="price">Price (eth): </label>')
-    form.append('<input id="price" type="number" min="0.01" max="100" step="0.01" value="' + game[5] + '" required>')
+    form.append('<input id="price" type="number" min="0.01" max="100" step="0.01" value="' + Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100 + '" required>')
     form.append('<br>')
     form.append('<textarea id="shortDesc" rows="6" cols="50" maxlength="280">' + game[4] + '</textarea>')
     form.append('<br>')
@@ -267,7 +259,7 @@ export class Main extends Loader {
     form.submit({id: id}, main.updateGame)
   }
 
-  clearContent() {//except options
+  clearContent() {
     var content = $('#content')
     content.find('div:not(#options)').remove()
   }
@@ -301,7 +293,7 @@ export class Main extends Loader {
     var name = $('#gameInfo #name').val()
     var year = $('#gameInfo #year').val()
     var price = $('#gameInfo #price').val()
-    var desc = $('#gameInfo #shortDesc').val()
+    var desc = $('#gameInfo #shortDesc').val() * 1000000000000000000 // wei
     var state = $('#gameInfo #sale').is(":checked")
     window.alert("confirm the transaction to submit game's changes")
     await main.App.shop.UpdateGame(e.data.id, name, desc, price, year, state);
