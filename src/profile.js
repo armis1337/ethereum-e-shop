@@ -194,13 +194,13 @@ export class Main extends Loader {
             var gamedata = await main.App.shop.GetUsersGames(main.App.account)
             //gamedata[0] - zaidimu idai
             //gamedata[1] - datos
-            console.log(gamedata[1])
+           // console.log(gamedata[1])
             for (var i = 0; i<gamedata[0].length; i++)
             {
                 var game = await main.App.shop.games(web3.toBigNumber(gamedata[0][i]).toNumber())
                 var name = game[3]
                 var bought = web3.toBigNumber(gamedata[1][i]).toNumber()
-                console.log(bought)
+                //console.log(bought)
                 bought = main.makeDate(bought)
 
                 table.append('<tr></tr>')

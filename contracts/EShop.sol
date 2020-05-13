@@ -134,7 +134,8 @@ contract EShop {
                 seller: msg.sender,
                 name: _name,
                 short_desc: _sh_desc,
-                price: _price + _price * 1/5,
+                //price: _price + _price * 1/5,
+                price: _price,
                 releaseYear: _year,
                 soldCopies: 0,
                 state: _state,
@@ -163,13 +164,12 @@ contract EShop {
         onlyCreator(_id)
     {
         Users[games[_id].seller].ownedGames--;
-        //delete games[_id]; // pakeista i \i/
         games[_id].initialized = false;
         gameCount--;
     }
 
     function AddDebt(address _adr, uint256 _amount)
-        public // reiktu gal i internal paskui pakeist
+        public
         onlyAdmin
     {
         require(Users[_adr].group != Groups.Normal, "user cannot be in normal group");
@@ -196,23 +196,23 @@ contract EShop {
         require(games[_id].state == true, "game is not for sale");
         require(msg.value >= games[_id].price, "wrong amount");
         require(Users[msg.sender].myGames[_id].initialized == false, "game is deleted");
-        wallet.transfer(games[_id].price / 6);//20% shopui
-        if (Users[games[_id].seller].debt > 0) // jei skolingas
+        wallet.transfer(games[_id].price / 5);//20% shopui
+        if (Users[games[_id].seller].debt > 0) // jei pardavejas skolingas
         {
-            if(Users[games[_id].seller].debt > games[_id].price - games[_id].price / 6)// jei skoloj daugiau nei kainuoja zaidimas
+            if(Users[games[_id].seller].debt > games[_id].price - games[_id].price / 5)// jei skoloj daugiau nei kainuoja zaidimas
             {
-                wallet.transfer(games[_id].price - games[_id].price / 6);
-                Users[games[_id].seller].debt -= (games[_id].price - games[_id].price / 6);
+                wallet.transfer(games[_id].price - games[_id].price / 5);
+                Users[games[_id].seller].debt -= (games[_id].price - games[_id].price / 5);
             }
             else // jei skolingas maziau, nei kainuoja geimas
             {
                 wallet.transfer(Users[games[_id].seller].debt);//pervedam skola shopui
-                games[_id].seller.transfer(games[_id].price - games[_id].price / 6 - Users[games[_id].seller].debt); // likuti selleriui
+                games[_id].seller.transfer(games[_id].price - games[_id].price / 5 - Users[games[_id].seller].debt); // likuti selleriui
                 Users[games[_id].seller].debt = 0;
             }
         }
         else
-            games[_id].seller.transfer(games[_id].price - games[_id].price / 6);
+            games[_id].seller.transfer(games[_id].price - games[_id].price / 5);
 
         Users[msg.sender].myGames[_id] = games[_id];
         Users[msg.sender].buyDates[_id] = now;
@@ -303,31 +303,6 @@ contract EShop {
         }
     }
 
-    function ChangeName (string memory _new) // pasikeisti savo varda
-        public
-    {
-        Users[msg.sender].name = _new;
-    }
-
-    function ChangeDescription (string memory _desc)
-        public
-    {
-        Users[msg.sender].description = _desc;
-    }
-
-    function ChangeYear (uint256 _year)
-        public
-    {
-        require(_year >= 1 && _year <= 9999, "wrong input");
-        Users[msg.sender].year = _year;
-    }
-
-    function ChangeMail (string memory _mail)
-        public
-    {
-        Users[msg.sender].email = _mail;
-    }
-
     function ChangeInfo (string memory _name, string memory _desc, uint256 _year, string memory _email)
         public
     {
@@ -411,6 +386,7 @@ contract EShop {
         //require(Users[msg.sender].myGames[_id].initialized, "you dont own this game");
         require(UserHasGame(msg.sender, _id), "you dont own this game");
         require(!HasAskedRefund(msg.sender, _id), "you cannot ask for refund twice");
+        require(now - Users[msg.sender].buyDates[_id] < 1209600, "more than 2 weeks has passed since you bought this game");
         refunds.push(RefundReq({
             gameId: _id,
             owner: msg.sender,

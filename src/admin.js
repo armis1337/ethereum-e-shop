@@ -55,7 +55,8 @@ export class Admin extends Main {
         div.hide()
         div.css({'padding':'10px', 'text-align':'center', 'width':'90%', 'margin-top':'10px', 'margin-left':'5%', 'margin-right':'5%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
 
-        var reqCount = await main.App.shop.waitingRefunds()
+        //var reqCount = await main.App.shop.waitingRefunds()
+        var reqCount = await main.App.shop.GetRefundsLength()
 
         if (reqCount > 0)
         {
@@ -67,7 +68,8 @@ export class Admin extends Main {
             table.append('<tr></tr>')
             table.find('tr').append('<td><b>ID</b></td>')
             table.find('tr').append('<td><b>Request by</b></td>')
-            table.find('tr').append('<td><b>Seller</b></td>')
+            //table.find('tr').append('<td><b>Seller</b></td>')
+            table.find('tr').append('<td><b>Game</b></td>')
             table.find('tr').append('<td><b>Price bought</b></td>')
             table.find('tr').append('<td><b>Reason</b></td>')
             table.find('tr').append('<td><b>State</b></td>')
@@ -84,8 +86,9 @@ export class Admin extends Main {
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
                 row.append('<td>' + request[1] + '</td>')
-                row.append('<td>' + game[2] + '</td>')
-                row.append('<td>' + request[2] + '</td>')
+                //row.append('<td>' + game[2] + '</td>')
+                row.append('<td><a href="/game.html?id=' + request[0] + '">' + game[3] + '</a></td>')
+                row.append('<td>' + main.makeEth(request[2]) + ' eth</td>')
                 row.append('<td>' + request[3] + '</td>')
                 if (request[4] == 0)
                 {
@@ -382,6 +385,9 @@ export class Admin extends Main {
                     var status = "Not for sale"
                 var sold = game[7].toNumber()
                 var seller = game[2]
+                var sname = await main.App.shop.Users(seller).then(function(x){return x[0]})
+                if (sname.length != 0)
+                    seller = sname
                 var date = main.makeDate(game[9])
 
                 // add values to table

@@ -3,12 +3,8 @@
   "version": "1.33.7",
   "description": "Blockchain games e-Shop powered by Ethereum",
   "main": "truffle-config.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "dev": "lite-server",
-    "debug": "nodemon --inspect ./bin/www",
     "test": "echo \"Error: no test specified\" && sexit 1"
   },
   "author": "arminas.glusinskas@mif.stud.vu.lt",

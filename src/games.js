@@ -38,6 +38,10 @@ export class Main extends Loader {
                 var name = game[3]
                 var desc = game[4]
                 var seller = game[2]
+                var sname = await main.App.shop.Users(seller).then(function(x){return x[0]})
+                if(sname.length != 0)
+                    seller = sname + ' (' + seller + ')'
+                //console.log(pz + pz.length)
                 var price = main.makeEth(game[5]) + ' eth'
                 var soldCopies = game[7]
                 var releaseYear = game[6]
