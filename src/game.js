@@ -333,42 +333,6 @@ export class Main extends Loader {
         window.location.reload()
     }
 
-    renderOptions () {
-        if ($('#options').length !=0)
-            return
-        $('#gameInfo').after('<div id="options"></div>')
-        var div = $('#options')
-        div.css('text-align', 'center')
-        div.append('<button type="Button" id="refundbtn">Ask for a refund</button>')
-        $('#refundbtn').on('click', main.renderRefundForm)
-    }
-
-    renderRefundForm () {
-        if ($('#refund').length != 0)
-        {
-            $('#refund').remove()
-            return
-        }
-        $('#options').after('<form id="refund"></form>')
-        var form = $('#refund')
-        form.css({'padding':'10px','text-align':'center', 'width':'40%', 'margin-top':'10px', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
-        form.append('<label for="reason">Reason for refund</label><br>')
-        form.append('<textarea id="reason" rows="4" cols="50" maxlength="100" required></textarea>')
-        form.append('<br><button type="submit">Submit request</button>')
-        form.submit(main.submitRefundRequest)
-    }
-
-    async submitRefundRequest (e) {
-        e.preventDefault()
-
-        var id = location.search.substring(4)
-        var msg = $('#reason').val()
-        main.setLoading(true)
-        window.alert('confirm the transaction to submit refund request')
-        await main.App.shop.AskRefund(id, msg)
-        window.location.reload()
-    }
-
     async buy (e) {
         e.preventDefault()
         main.setLoading(true)
