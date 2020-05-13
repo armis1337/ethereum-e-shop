@@ -1,11 +1,6 @@
 import Loader from './loader.js'
 export class Main extends Loader {
-  constructor (app = null) {
-    super()
-    if (app != null)
-      this.App = app
-  }
-  async render() { // new
+  async render() {
       main.setLoading(true)
       await main.load()
 
@@ -14,320 +9,294 @@ export class Main extends Loader {
 
       await main.renderOptions()
       main.setLoading(false)
+  }
+
+  async renderOptions(app = null) {
+    if ($('#options').length != 0)
+      return
+
+    if (app != null)
+      main.App = app
+
+    $('#content').append('<div id="options"></div>')
+    var options = $('#options')
+    options.css({'text-align':'center'})
+    options.append('<button type="button" id="1" class="option">Create game</button>')
+    $('#1').on('click', main.renderCreateGame)
+    options.append('<button type="button" id="2" class="option">Your games</button>')
+    $('#2').on('click', main.renderMyGames)
+    options.append('<button type="button" id="3" class="option">Edit game</button>')
+    $('#3').on('click', main.renderUpdateGame)
+    if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
+    {
+      options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt to the shop</b></button>')
+      $('#debtbtn').on('click', main.renderDebtReturnForm)
+      $('#1, #3').prop('disabled', true)
     }
 
-    async renderOptions(app = null) { // new
-      if ($('#options').length != 0)
-        return
+    $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
+  }
 
-      if (app != null)
-        main.App = app
+  async renderCreateGame() {
+    if ($('#create').length != 0)
+    {
+      $('#create').remove()
+      return
+    }
+    
+    main.clearContent()
 
-      $('#content').append('<div id="options"></div>')
-      var options = $('#options')
-      options.css({'text-align':'center'})
-      options.append('<button type="button" id="1" class="option">Create game</button>')
-      $('#1').on('click', main.renderCreateGame)
-      options.append('<button type="button" id="2" class="option">Your games</button>')
-      $('#2').on('click', main.renderMyGames)
-      options.append('<button type="button" id="3" class="option">Edit game</button>')
-      $('#3').on('click', main.renderUpdateGame)
-      //$('#1, #2, #3').css({'width':'140px','heigth':'50px','margin':'5px'})
-      if (typeof main.App.userdata !== 'undefined' && main.App.userdata[4] != 0)
-      {
-        options.append('<br><button type="button" id="debtbtn" class="option" style="color:red"><b>Return debt to the shop</b></button>')
-        $('#debtbtn').on('click', main.renderDebtReturnForm)
-        $('#1, #3').prop('disabled', true)
-      }
+    $('#options').after('<div id="create"></div>')
 
-      $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
+    var div = $('#create')
+    div.hide()
+
+    div.css({'padding':'2%', 'text-align':'center', 'width':'40%', 'margin-bottom':'2%', 'margin-top':'1%', 'margin-left':'30%', 'margin-right':'30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+    div.append('<h4 style="text-align:center">Create Game</h4>')
+    div.append('<form id="newGame"></form>')
+    var form = $('#newGame')
+    form.append('<label for="name">Name: </label>')
+    form.append('<input id="name" type="text" placeholder="Game\'s name"><br>')
+    form.append('<label for="releaseYear">Year: </label>')
+    form.append('<input id="releaseYear" type="number" min="1900" max="2020"><br>')
+    form.append('<label for="price">Price (eth): </label>')
+    form.append('<input id="price" type="number" step="0.01" min="0.01" max="100" placeholder="Price in eth"><br>')
+    form.append('<textarea id="shortDesc" rows="4" cols="50" maxlength="280" placeholder="Short description"></textarea><br>')
+    form.append('<input type="checkbox" id="sale" checked="true">')
+    form.append('<label for="sale">Set game for sale</label><br>')
+    form.append('<input type="submit" value="Create"></input>')
+    form.append("&nbsp;&nbsp;&nbsp;")
+    form.append('<button type="button" id="cancelCreate">Cancel</button>')
+    form.submit(main.createGame)
+    form.find('#name, #releaseYear, #price').css({'width': '30%',})
+    form.find('#cancelCreate').on('click', main.clearContent)
+
+    div.show()
+  }
+
+  async renderDebtReturnForm() {
+    if ($('#debt').length != 0)
+    {
+      $('#debt').remove()
+      return
     }
 
-    async renderCreateGame() { // new +
-      if ($('#create').length != 0)
-      {
-        $('#create').remove()
-        return
-      }
-      
-      main.clearContent()
+    main.clearContent()
 
-      $('#options').after('<div id="create"></div>')
+    $('#options').append('<div id="debt"></div>')
+    var div = $('#debt')
+    div.hide()
+    div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
 
-      var div = $('#create')
-      div.css('text-align', 'center')
-      div.append('<h4>Create Game</h4>')
-      div.append('<form id="newGame"></form>')
-      var form = $('#newGame')
-      form.css({'padding': '10px', 'margin-left': '30%', 'margin-right': '30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
-      form.append('<label for="name">Name:</label>')
-      form.append('<input id="name" type="text" placeholder="Game\'s name"><br>')
-      form.append('<label for="releaseYear">Year:</label>')
-      form.append('<input id="releaseYear" type="number" min="1900" max="2020"><br>')
-      form.append('<label for="price">Price (wei):</label>')
-      form.append('<input id="price" type="number" step="0.0000001" placeholder="Price in wei"><br>')
-      form.append('<textarea id="shortDesc" rows="4" cols="50" maxlength="280" placeholder="Short description"></textarea><br>')
-      form.append('<input type="checkbox" id="sale" checked="true">')
-      form.append('<label for="sale">Set game for sale</label><br>')
-      form.append('<input type="submit" value="Create"></input>')
-      form.append("&nbsp;&nbsp;&nbsp;")
-      form.append('<button type="button" id="cancelCreate">Cancel</button>')
-      form.submit(main.createGame)
-      form.find('#cancelCreate').on('click', main.clearContent)
+    div.append('<form id="returndebt"></form>')
+    var form = $('#returndebt')
+    form.append('<p>Your total debt is: ' + main.App.userdata[4] + '</p>')
+    form.append('<label for="amountToReturn">Amount to return: </label>')
+    form.append('<input type="number" id="amountToReturn" min="1" required>')
+    form.append('<button type="submit">OK</button>')
+    form.submit(main.returnDebt)
+
+    div.show()
+  }
+
+  async returnDebt(e) {
+    e.preventDefault()
+    main.setLoading(true)
+    var amount = $('#amountToReturn').val()
+    window.alert('confirm the transaction to return debt')
+    await main.App.shop.ReturnDebt({from: main.App.account, value: amount})
+    main.clearContent()
+    window.location.reload()
+  }
+
+  async renderMyGames() {
+    if ($('#myGames').length != 0)
+    {
+      $('#myGames').remove()
+      return
     }
+    
+    main.clearContent()
 
-    async renderDebtReturnForm() {
-      if ($('#debt').length != 0)
+    $('#options').after('<div id="myGames"></div>')
+
+    var div = $('#myGames')
+    div.hide()
+    div.css('text-align', 'center')
+    div.append('<center><h4>List of your created games</h4></center>')
+
+    var createdGames = await main.App.shop.GetSellersGames(main.App.account)
+    if (createdGames.length != 0)
+    {
+
+      div.append('<table id="gamesTable"></table>')
+      var table = $('#gamesTable')
+
+      table.css({'width': '60%','margin-left': '20%', 'margin-right': '20%'})
+
+      table.append('<tr></tr>')
+      table.find('tr').append('<td><b>ID</b></td>')
+      table.find('tr').append('<td><b>Name</b></td>')
+      table.find('tr').append('<td><b>Price</b></td>')
+      table.find('tr').append('<td><b>Sold copies</b></td>')
+      table.find('tr').append('<td><b>Created</b></td>')
+      table.find('tr').append('<td><b>Status</b></td>')
+
+      for (var i = 0; i<createdGames.length; i++)
       {
-        $('#debt').remove()
-        return
-      }
+        var id = web3.toBigNumber(createdGames[i]).toNumber()
+        var game = await main.App.shop.games(id)
 
-      main.clearContent()
+        if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
+          continue
 
-      $('#options').append('<div id="debt"></div>')
-      var div = $('#debt')
-      div.hide()
-      div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+        var name = game[3]
+        var price = main.makeEth(game[5]) + ' eth'
+        if (game[8])
+          var status = "For sale"
+        else
+          var status = "Not for sale"
+        var sold = game[7].toNumber()
+        var date = main.makeDate(game[9])
 
-      div.append('<form id="returndebt"></form>')
-      var form = $('#returndebt')
-      form.append('<p>Your total debt is: ' + main.App.userdata[4] + '</p>')
-      form.append('<label for="amountToReturn">Amount to return: </label>')
-      form.append('<input type="number" id="amountToReturn" min="1" required>')
-      form.append('<button type="submit">OK</button>')
-      form.submit(main.returnDebt)
-
-      div.show()
-    }
-
-    async returnDebt(e) {
-      e.preventDefault()
-      main.setLoading(true)
-      var amount = $('#amountToReturn').val()
-      window.alert('confirm the transaction to return debt')
-      await main.App.shop.ReturnDebt({from: main.App.account, value: amount})
-      main.clearContent()
-      window.location.reload()
-    }
-
-    async renderMyGames() { // new +
-      if ($('#myGames').length != 0)
-      {
-        $('#myGames').remove()
-        return
-      }
-      
-      main.clearContent()
-
-      $('#options').after('<div id="myGames"></div>')
-
-      var div = $('#myGames')
-      div.hide()
-      div.css('text-align', 'center')
-      div.append('<center><h4>List of your created games</h4></center>')
-
-      var createdGames = await main.App.shop.GetSellersGames(main.App.account)
-      if (createdGames.length != 0)
-      {
-
-        div.append('<table id="gamesTable" style="width:100%"></table>')
-        var table = $('#gamesTable')
-
-        table.css({'width': '60%','margin-left': '20%', 'margin-right': '20%'})
-
+        // add values to table
         table.append('<tr></tr>')
-        table.find('tr').append('<td><b>ID</b></td>')
-        table.find('tr').append('<td><b>Name</b></td>')
-        table.find('tr').append('<td><b>Price</b></td>')
-        table.find('tr').append('<td><b>Sold copies</b></td>')
-        table.find('tr').append('<td><b>Created</b></td>')
-        table.find('tr').append('<td><b>Status</b></td>')
-
-        for (var i = 0; i<createdGames.length; i++)
-        {
-          var id = web3.toBigNumber(createdGames[i]).toNumber()
-          var game = await main.App.shop.games(id)
-
-          if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
-            continue
-
-          // get values
-          var name = game[3]
-          var price = game[5]
-          if (game[8])
-            var status = "For sale"
-          else
-            var status = "Not for sale"
-          var sold = game[7].toNumber()
-
-          var date = new Date(game[9].toNumber() * 1000)
-          var year = date.getFullYear()
-          var month = date.getMonth() + 1
-          if(month < 10)
-            month = '0' + month
-          var day = date.getDate()
-          if(day < 10)
-            day = '0' + day
-          var hour = date.getHours()
-          if(hour < 10)
-            hour = '0' + hour
-          var min = date.getMinutes()
-          if(min < 10)
-            min = '0' + min
-          var sec = date.getSeconds()
-          if(sec < 10)
-            sec = '0' + sec
-          var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
-
-          // add values to table
-          table.append('<tr></tr>')
-          var row = table.find('tr').last()
-          row.append('<td>' + id + '</td>')
-          row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
-          row.append('<td>' + price + '</td>')
-          row.append('<td>' + sold + '</td>')
-          row.append('<td>' + date + '</td>')
-          row.append('<td>' + status + '</td>')
-        }
-        $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
-
+        var row = table.find('tr').last()
+        row.append('<td>' + id + '</td>')
+        row.append('<td><a href="game.html?id=' + id + '">' + name + '</a></td>')
+        row.append('<td>' + price + '</td>')
+        row.append('<td>' + sold + '</td>')
+        row.append('<td>' + date + '</td>')
+        row.append('<td>' + status + '</td>')
       }
-      else{
-        div.append('<p>You havent added any games yet</p>')
-      }
-      div.show()
+      $('#gamesTable, th, td').css({'border': '1px solid black', 'border-collapse':'collapse'})
+
+    }
+    else{
+      div.append('<p>You havent added any games yet</p>')
+    }
+    div.show()
+  }
+
+  async renderUpdateGame() {
+    if ($('#edit').length !=0)
+    {
+      $('#edit').remove()
+      return
     }
 
-    async renderUpdateGame() { // new +
-      if ($('#edit').length !=0)
+    main.clearContent()
+
+    $('#options').after('<div id="edit"></div>')
+    var div = $('#edit')
+    div.hide()
+    div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
+
+    var createdGames = await main.App.shop.GetSellersGames(main.App.account)
+    div.append('<form id="games"></form>')
+    if (createdGames.length > 0)
+    {
+      var form = $('#games')
+      form.append('<label for="gameList">Choose a game to edit: </label>')
+      form.append('<select id="gameList"></select>')
+      var select = $('#gameList')
+      for (var i = 0; i<createdGames.length; i++)
       {
-        $('#edit').remove()
-        return
+        var game = await main.App.shop.games(web3.toBigNumber(createdGames[i]).toNumber()) 
+        if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
+          continue 
+
+        select.append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
       }
-
-      main.clearContent()
-
-      $('#options').after('<div id="edit"></div>')
-      var div = $('#edit')
-      div.hide()
-      div.css({'padding':'10px','text-align':'center', 'width':'50%', 'margin-top':'10px', 'margin-left':'25%', 'margin-right':'25%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
-
-      var createdGames = await main.App.shop.GetSellersGames(main.App.account)
-      div.append('<form id="games"></form>')
-      if (createdGames.length > 0)
-      {
-        //console.log('created games = ' + createdGames.length)
-        var form = $('#games')
-        form.append('<label for="gameList">Choose a game to edit: </label>')
-        form.append('<select id="gameList"></select>')
-        var select = $('#gameList')
-        for (var i = 0; i<createdGames.length; i++)
-        {
-          var game = await main.App.shop.games(web3.toBigNumber(createdGames[i]).toNumber()) 
-          if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
-            continue 
-          select.append('<option value="' + game[1]/*id*/ + '">' + game[3]/*name*/ + '</option>')
-        }
-        form.append('&nbsp;&nbsp;<button type="submit">OK</button>')
-        form.submit(main.renderGameInfo)
-      }
-      else{
-        div.append('<p>You havent added any games yet</p>')
-      }
-      div.show()
+      form.append('&nbsp;&nbsp;<button type="submit">OK</button>')
+      form.submit(main.renderGameInfo)
     }
-
-    async renderGameInfo(e) { // new +
-      if (typeof e == 'undefined')
-        return
-      e.preventDefault()
-
-      if ($('#gameInfo').length != 0)
-      { 
-        $('#gameInfo').remove()
-      }
-      
-      var id = $('#gameList').val()
-      var game = await main.App.shop.games(id)
-      $('#games').after('<br><form id="gameInfo"></form>')
-      var form = $('#gameInfo')
-      //form.css({'padding': '10px', 'margin-left': '30%', 'margin-right': '30%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
-      form.append('<label for="name">Game\'s name: </label>')
-      form.append('<input id="name" type="text" value="' + game[3]  + '" required>')
-      form.append('<br>')
-      form.append('<label for="year">Year: </label>')
-      form.append('<input id="year" type="number" value="' + game[6] + '" required>')
-      form.append('<br>')
-      form.append('<label for="price">Price (wei): </label>')
-      form.append('<input id="price" type="number" step="0.0000001" value="' + game[5] + '" required>')
-      form.append('<br>')
-      form.append('<textarea id="shortDesc" rows="6" cols="50" maxlength="280">' + game[4] + '</textarea>')
-      form.append('<br>')
-      if (game[8])
-        form.append('<input type="checkbox" id="sale" checked="true">')
-      else 
-        form.append('<input type="checkbox" id="sale">')
-      form.append('<label for="sale">Set game on sale </label>')
-      form.append('<br>')
-      form.append('<button type="submit">Done</button>')
-      form.append('&nbsp;&nbsp;<button id="deleteGame" type="button" style="color:red">DELETE GAME</button>')
-      form.append('&nbsp;&nbsp;<button id="cancelEdit" type="button">Cancel</button>')
-      form.find('#cancelEdit').on('click', main.clearContent)
-      form.find('#deleteGame').on('click', {id: id}, main.deleteGame)
-      form.submit({id: id}, main.updateGame)
+    else{
+      div.append('<p>You havent added any games yet</p>')
     }
+    div.show()
+  }
 
-    clearContent() {//except options
-      var content = $('#content')
-      content.find('div:not(#options)').remove()
+  async renderGameInfo(e) {
+    if (typeof e == 'undefined')
+      return
+    e.preventDefault()
+
+    if ($('#gameInfo').length != 0)
+    { 
+      $('#gameInfo').remove()
     }
+    
+    var id = $('#gameList').val()
+    var game = await main.App.shop.games(id)
+    $('#games').after('<br><form id="gameInfo"></form>')
+    var form = $('#gameInfo')
+    form.append('<label for="name">Game\'s name: </label>')
+    form.append('<input id="name" type="text" value="' + game[3]  + '" required>')
+    form.append('<br>')
+    form.append('<label for="year">Year: </label>')
+    form.append('<input id="year" type="number" value="' + game[6] + '" required>')
+    form.append('<br>')
+    form.append('<label for="price">Price (eth): </label>')
+    form.append('<input id="price" type="number" min="0.01" max="100" step="0.01" value="' + Math.round((web3.fromWei(game[5], 'ether').toNumber() + Number.EPSILON) * 100) / 100 + '" required>')
+    form.append('<br>')
+    form.append('<textarea id="shortDesc" rows="6" cols="50" maxlength="280">' + game[4] + '</textarea>')
+    form.append('<br>')
+    if (game[8])
+      form.append('<input type="checkbox" id="sale" checked="true">')
+    else 
+      form.append('<input type="checkbox" id="sale">')
+    form.append('<label for="sale">Set game on sale </label>')
+    form.append('<br>')
+    form.append('<button type="submit">Done</button>')
+    form.append('&nbsp;&nbsp;<button id="deleteGame" type="button" style="color:red">DELETE GAME</button>')
+    form.append('&nbsp;&nbsp;<button id="cancelEdit" type="button">Cancel</button>')
+    form.find('#cancelEdit').on('click', main.clearContent)
+    form.find('#deleteGame').on('click', {id: id}, main.deleteGame)
+    form.submit({id: id}, main.updateGame)
+  }
 
-    async createGame(e) { // new +
-      e.preventDefault()
+  clearContent() {
+    var content = $('#content')
+    content.find('div:not(#options)').remove()
+  }
 
-      main.setLoading(true)
-      window.alert('confirm the transaction to create new game')
-      var name = $('#name').val()
-      var year = $('#releaseYear').val()
-      var price = $('#price').val()
-      var desc = $('#shortDesc').val()
-      var state = $('#sale').is(":checked")
-      //console.log(name, year, price, desc, state)
-      await main.App.shop.CreateGame(name, desc, price, year, state)
-      main.clearContent()
-      //await main.renderCreateGame()
-      main.setLoading(false)
-      //window.location.reload()
-      //main.setLoading(false)
-    }
+  async createGame(e) {
+    e.preventDefault()
 
-    async deleteGame(e) { // + 
-      main.setLoading(true)
-      //console.log(e.data.id)
-      window.alert("confirm the transaction if you really want to delete this game")
-      await main.App.shop.DeleteGame(e.data.id)
-      main.clearContent()
-      //await main.renderUpdateGame()
-      main.setLoading(false)
-      //window.location.reload()
-    }
+    main.setLoading(true)
+    window.alert('confirm the transaction to create new game')
+    var name = $('#name').val()
+    var year = $('#releaseYear').val()
+    var price = $('#price').val() * 1000000000000000000 // wei
+    var desc = $('#shortDesc').val()
+    var state = $('#sale').is(":checked")
+    await main.App.shop.CreateGame(name, desc, price, year, state)
+    main.clearContent()
+    main.setLoading(false)
+  }
 
-    async updateGame(e) { // +
-      e.preventDefault()
-      main.setLoading(true)
-      var name = $('#gameInfo #name').val()
-      var year = $('#gameInfo #year').val()
-      var price = $('#gameInfo #price').val()
-      var desc = $('#gameInfo #shortDesc').val()
-      var state = $('#gameInfo #sale').is(":checked")
-      window.alert("confirm the transaction to submit game's changes")
-      await main.App.shop.UpdateGame(e.data.id, name, desc, price, year, state);
-      main.clearContent()
-      //await main.renderMyGames()
-      main.setLoading(false)
-      //window.location.reload()
-    }
+  async deleteGame(e) {
+    main.setLoading(true)
+    window.alert("confirm the transaction if you really want to delete this game")
+    await main.App.shop.DeleteGame(e.data.id)
+    main.clearContent()
+    main.setLoading(false)
+  }
+
+  async updateGame(e) {
+    e.preventDefault()
+    main.setLoading(true)
+    var name = $('#gameInfo #name').val()
+    var year = $('#gameInfo #year').val()
+    var price = $('#gameInfo #price').val()
+    var desc = $('#gameInfo #shortDesc').val() * 1000000000000000000 // wei
+    var state = $('#gameInfo #sale').is(":checked")
+    window.alert("confirm the transaction to submit game's changes")
+    await main.App.shop.UpdateGame(e.data.id, name, desc, price, year, state);
+    main.clearContent()
+    main.setLoading(false)
+  }
 }
 
 let main = new Main()

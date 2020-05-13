@@ -1,5 +1,4 @@
 import {Main} from './seller.js'
-
 export class Admin extends Main {
     async render (){
         main.setLoading(true)
@@ -41,7 +40,6 @@ export class Admin extends Main {
         }
 
         $('.option').css({'width':'140px','heigth':'50px','margin':'5px'})
-        //$('#4, #5, #6').css({'width':'140px','heigth':'50px','margin':'5px'})
     }
 
     async renderRefundRequests () {
@@ -57,9 +55,9 @@ export class Admin extends Main {
         div.hide()
         div.css({'padding':'10px', 'text-align':'center', 'width':'90%', 'margin-top':'10px', 'margin-left':'5%', 'margin-right':'5%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
 
-        var reqCount = await main.App.shop.waitingRefunds()
+        var reqCount = await main.App.shop.GetRefundsLength()
 
-        if (1 > 0)
+        if (reqCount > 0)
         {
             div.append('<table id="requestsTable" style="width:100%"></table>')
             var table = $('#requestsTable')
@@ -69,7 +67,7 @@ export class Admin extends Main {
             table.append('<tr></tr>')
             table.find('tr').append('<td><b>ID</b></td>')
             table.find('tr').append('<td><b>Request by</b></td>')
-            table.find('tr').append('<td><b>Seller</b></td>')
+            table.find('tr').append('<td><b>Game</b></td>')
             table.find('tr').append('<td><b>Price bought</b></td>')
             table.find('tr').append('<td><b>Reason</b></td>')
             table.find('tr').append('<td><b>State</b></td>')
@@ -77,17 +75,14 @@ export class Admin extends Main {
             for (var i = 0; i < await main.App.shop.GetRefundsLength(); i++)
             {
                 var request = await main.App.shop.refunds(i)
-                //console.log(request[0].toNumber())
                 var game = await main.App.shop.games(request[0].toNumber())
-               //var price = 
-                //console.log(price.toNumber())
 
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
                 row.append('<td>' + request[1] + '</td>')
-                row.append('<td>' + game[2] + '</td>')
-                row.append('<td>' + request[2] + '</td>')
+                row.append('<td><a href="/game.html?id=' + request[0] + '">' + game[3] + '</a></td>')
+                row.append('<td>' + main.makeEth(request[2]) + ' eth</td>')
                 row.append('<td>' + request[3] + '</td>')
                 if (request[4] == 0)
                 {
@@ -249,44 +244,91 @@ export class Admin extends Main {
     async makeNormal(e) {
         e.preventDefault()
         var adr = $('#userAddress').val()
-        //
-        // tlikrinimooo
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to move user \n' + adr + '\nto Normal group')
-        await main.App.shop.MakeNormal(adr)
-        main.clearContent()
-        main.setLoading(false)
+        if (main.checkAddress(adr))
+        {
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if (user[1] == 0)
+            {
+                window.alert('user is already in normal group')
+            }
+            else if (user[2] != 0)
+            {
+                window.alert('please remove all users games first')
+            }
+            else if (user[4] != 0){
+                window.alert('user has not returned debt')
+            }
+            else {
+
+                window.alert('confirm the transaction to move user \n' + adr + '\nto Normal group')
+                await main.App.shop.MakeNormal(adr)
+            }
+            main.clearContent()
+            main.setLoading(false)
+        }
+        else return
     }
 
     async makeAdmin(e) {
         e.preventDefault()
         var adr = $('#adminAddress').val()
-        //
-        // irgi tikrinimo reik
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to make user\n' + adr + '\nAdmin')
-        await main.App.shop.MakeAdmin(adr)
-        main.clearContent()
-        await main.renderAdmins()
-        main.setLoading(false)
-        //window.location.reload()
+        if (main.checkAddress(adr)){
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if ((user[1] == 0 && user[2] == 0) || user[1] == 1) // jeigu normal ir neturi zaidimu arba selleris
+            {
+                window.alert('confirm the transaction to make user\n' + adr + '\nAdmin')
+                await main.App.shop.MakeAdmin(adr)
+            }
+            else if (user[1] == 0 && user[2] > 0)
+            {
+                window.alert('user cannot have any games to be Admin')
+            }
+            else if (user[1] == 2) {
+                window.alert('user is admin already')
+            }
+            main.clearContent()
+            await main.renderAdmins()
+            main.setLoading(false)
+        }
+        else return
     }
 
     async makeSeller(e) {
         e.preventDefault()
         var adr = $('#sellerAddress').val()
-        //
-        // tikrinimo reik
-        //
-        main.setLoading(true)
-        window.alert('confirm the transaction to make user\n' + adr + '\nSeller')
-        await main.App.shop.MakeSeller(adr)
-        main.clearContent()
-        await main.renderSellers()
-        main.setLoading(false)
-        //window.location.reload()
+        if (main.checkAddress(adr)) {
+            main.setLoading(true)
+            var user = await main.App.shop.Users(adr)
+            if ((user[1] == 0 && user[2] == 0) || user[1] == 2)
+            {
+                window.alert('confirm the transaction to make user\n' + adr + '\nSeller')
+                await main.App.shop.MakeSeller(adr)
+            }
+            else if (user[1] == 1)
+            {
+                window.alert('user is seller already')
+            }
+            else if (user[1] == 0 && user[2] > 0)
+            {
+                window.alert('user cannot have any bought games to be seller')
+            }
+            main.clearContent()
+            await main.renderSellers()
+            main.setLoading(false)
+        }
+        else return
+    }
+
+    checkAddress(adr) {
+        if (adr.length == 42 && !web3.toBigNumber(adr).isZero())
+            return true
+        else
+        {
+            window.alert('wrong address')
+            return false
+        }
     }
 
     async renderAllGames() {
@@ -304,7 +346,6 @@ export class Admin extends Main {
         div.css('text-align', 'center')
         div.append('<center><h4>List of all shop\'s games</h4></center>')
 
-        //var createdGames = await main.App.shop.GetSellersGames(main.App.account)
         var gameCount = await main.App.shop.gameCount()
         if (gameCount > 0)
         {
@@ -330,35 +371,18 @@ export class Admin extends Main {
                 if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
                     continue
 
-                // get values
-                //var id = web3.toBigNumber(createdGames[i]).toNumber()
                 var name = game[3]
-                var price = game[5]
+                var price = main.makeEth(game[5]) + ' eth'
                 if (game[8])
                     var status = "For sale"
                 else
                     var status = "Not for sale"
                 var sold = game[7].toNumber()
                 var seller = game[2]
-                
-                var date = new Date(game[9].toNumber() * 1000)
-                var year = date.getFullYear()
-                var month = date.getMonth() + 1
-                if(month < 10)
-                    month = '0' + month
-                var day = date.getDate()
-                if(day < 10)
-                    day = '0' + day
-                var hour = date.getHours()
-                if(hour < 10)
-                    hour = '0' + hour
-                var min = date.getMinutes()
-                if(min < 10)
-                    min = '0' + min
-                var sec = date.getSeconds()
-                if(sec < 10)
-                    sec = '0' + sec
-                var date = year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec
+                var sname = await main.App.shop.Users(seller).then(function(x){return x[0]})
+                if (sname.length != 0)
+                    seller = sname
+                var date = main.makeDate(game[9])
 
                 // add values to table
                 table.append('<tr></tr>')
@@ -409,6 +433,7 @@ export class Admin extends Main {
                 var game = await main.App.shop.games(i) 
                 if(!game[0]) // jei zaidimas istrintas, neirasinejam niekur
                     continue 
+
                 select.append('<option value="' + i/*id*/ + '">' + game[3]/*name*/ + '</option>')
             }
             form.append('&nbsp;&nbsp;<button type="submit">OK</button>')
@@ -422,12 +447,3 @@ export class Admin extends Main {
 }
 
 let main = new Admin()
-/*
-$(() => {
-    $(window).load(() => {
-        window.main = new Admin()
-        window.main.render()
-        //main.render()
-    })
-})
-*/

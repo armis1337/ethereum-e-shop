@@ -47,6 +47,11 @@ class Loader {
     this.App.account = web3.eth.accounts[0]
   }
 
+  async loadGame(id) {
+    var game = await this.App.shop.games(id)
+    this.App.game = game
+  }
+
   async loadContract() {
     const shop = await $.getJSON('EShop.json')
     this.App.contracts.Shop = TruffleContract(shop)
@@ -55,8 +60,20 @@ class Loader {
     this.App.userdata = await this.App.shop.Users(this.App.account.toString())
   }
 
+  async loadGames() {
+    var gameCount = await this.App.shop.gameCount()
+    var gamesLen = await this.App.shop.GetGamesLength()
+    this.App.games = []
+    this.App.page = 1
+    for (var i = 0; i < gamesLen; i++)
+    {
+        var game = await this.App.shop.games(i)
+        if (game[0])
+            this.App.games.push(game)
+    }
+  }
+
   setLoading (boolean) {
-    //console.log('chaning state...')
     this.App.loading = boolean
     const loader = $('#loader')
     const content = $('#content')
@@ -75,6 +92,32 @@ class Loader {
   goBack() {
     $('#content').remove()
     window.location.replace('index.html')
+  }
+
+  makeDate (unix) {
+    var date = new Date(unix * 1000)
+    var year = date.getFullYear()
+    var month = date.getMonth() + 1
+    if (month < 10)
+        month = '0' + month
+    var day = date.getDate()
+    if (day < 10)
+        day = '0' + day
+    var hours = date.getHours()
+    if (hours < 10)
+        hours = '0' + hours
+    var min = date.getMinutes()
+    if (min < 10)
+        min = '0' + min
+    var sec = date.getSeconds()
+    if (sec < 10)
+        sec = '0' + sec
+    date = year + '-' + month + '-' + day + ' ' + hours + ':' + min + ':' + sec
+    return date
+  }
+
+  makeEth (wei) {
+    return Math.round((web3.fromWei(wei, 'ether').toNumber() + Number.EPSILON) * 100) / 100
   }
 
 };
