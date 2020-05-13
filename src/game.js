@@ -292,7 +292,7 @@ export class Main extends Loader {
         div.show()
     }
 
-    clearContent() {//except options ir game info
+    clearContent() {
         var content = $('#content')
         content.find('div:not(#options, #gameInfo, #sellerInfo)').remove()
     }

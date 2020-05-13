@@ -55,7 +55,6 @@ export class Admin extends Main {
         div.hide()
         div.css({'padding':'10px', 'text-align':'center', 'width':'90%', 'margin-top':'10px', 'margin-left':'5%', 'margin-right':'5%', 'border-style': 'solid', 'border-width':'thin', 'border-color':'darkgray'})
 
-        //var reqCount = await main.App.shop.waitingRefunds()
         var reqCount = await main.App.shop.GetRefundsLength()
 
         if (reqCount > 0)
@@ -68,7 +67,6 @@ export class Admin extends Main {
             table.append('<tr></tr>')
             table.find('tr').append('<td><b>ID</b></td>')
             table.find('tr').append('<td><b>Request by</b></td>')
-            //table.find('tr').append('<td><b>Seller</b></td>')
             table.find('tr').append('<td><b>Game</b></td>')
             table.find('tr').append('<td><b>Price bought</b></td>')
             table.find('tr').append('<td><b>Reason</b></td>')
@@ -77,16 +75,12 @@ export class Admin extends Main {
             for (var i = 0; i < await main.App.shop.GetRefundsLength(); i++)
             {
                 var request = await main.App.shop.refunds(i)
-                //console.log(request[0].toNumber())
                 var game = await main.App.shop.games(request[0].toNumber())
-               //var price = 
-                //console.log(price.toNumber())
 
                 table.append('<tr></tr>')
                 var row = table.find('tr').last()
                 row.append('<td>' + i + '</td>')
                 row.append('<td>' + request[1] + '</td>')
-                //row.append('<td>' + game[2] + '</td>')
                 row.append('<td><a href="/game.html?id=' + request[0] + '">' + game[3] + '</a></td>')
                 row.append('<td>' + main.makeEth(request[2]) + ' eth</td>')
                 row.append('<td>' + request[3] + '</td>')
