@@ -18,7 +18,7 @@
     "nodemon": "^1.17.3",
     "truffle": "^5.0.2",
     "truffle-contract": "^3.0.6",
-    "jquery": "^3.4.0"
+    "jquery": "^3.5.0"
   },
   "repository": {
     "type": "git",
